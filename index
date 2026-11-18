@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Dashboard Enxuta 3.0 USD</title>
+<script>
+(function(){
+  function autoByTime(){ var h=new Date().getHours(); return (h>=19||h<7); }
+  function apply(){
+    var t='auto';
+    try{ t=localStorage.getItem('dash.theme')||'auto'; }catch(e){}
+    var dark;
+    if(t==='dark') dark=true;
+    else if(t==='light') dark=false;
+    else dark=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)||(!window.matchMedia&&autoByTime())||(window.matchMedia&&!window.matchMedia('(prefers-color-scheme: dark)').matches&&window.matchMedia('(prefers-color-scheme: no-preference)').matches===false&&autoByTime());
+    document.documentElement.dataset.theme=dark?'dark':'light';
+  }
+  window.__applyTheme=apply;
+  apply();
+})();
+</script>
+<style>
+:root{
+  --bg:#eef1f7; --bg2:#e4e9f2; --card:#ffffff; --card2:#f6f8fc;
+  --text:#16202f; --muted:#5c6b82; --border:#dde4ee; --shadow:0 1px 2px rgba(22,32,47,.06),0 8px 24px rgba(22,32,47,.07);
+  --accent:#2563eb; --accent2:#1d4ed8; --on-accent:#fff;
+  --green:#15803d; --green-bg:#dcfce7; --red:#b91c1c; --red-bg:#fee2e2; --warn:#b45309; --warn-bg:#fef3c7;
+  --grid:#e7ecf4;
+  --c0:#2563eb;--c1:#7c3aed;--c2:#0891b2;--c3:#16a34a;--c4:#d97706;--c5:#db2777;
+  --c6:#4f46e5;--c7:#059669;--c8:#ea580c;--c9:#0d9488;--c10:#9333ea;
+}
+:root[data-theme="dark"]{
+  --bg:#0a1120; --bg2:#0d1526; --card:#121c30; --card2:#0f1828;
+  --text:#e7edf8; --muted:#8ba0bd; --border:#22314e; --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  --accent:#5b9bfc; --accent2:#3b82f6; --on-accent:#07101f;
+  --green:#4ade80; --green-bg:#0d3a22; --red:#f87171; --red-bg:#3f1717; --warn:#fbbf24; --warn-bg:#3d2c05;
+  --grid:#1c2942;
+  --c0:#60a5fa;--c1:#a78bfa;--c2:#22d3ee;--c3:#4ade80;--c4:#fbbf24;--c5:#f472b6;
+  --c6:#818cf8;--c7:#34d399;--c8:#fb923c;--c9:#2dd4bf;--c10:#c084fc;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg); color:var(--text); font-size:14.5px; line-height:1.45;
+  transition:background .25s,color .25s;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+input,select{font:inherit}
+svg{display:block}
+::selection{background:var(--accent);color:var(--on-accent)}
+
+/* ---------- Layout ---------- */
+.app{display:grid;grid-template-columns:264px 1fr;min-height:100vh}
+@media (max-width:1080px){ .app{grid-template-columns:1fr} }
+
+/* ---------- Sidebar ---------- */
+#sidebar{
+  background:var(--card);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;gap:6px;padding:16px 12px;
+  position:sticky;top:0;height:100vh;overflow-y:auto;z-index:40;
+}
+@media (max-width:1080px){
+  #sidebar{position:fixed;left:0;top:0;bottom:0;width:280px;transform:translateX(-102%);transition:transform .25s;box-shadow:var(--shadow)}
+  #sidebar.open{transform:none}
+}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 8px 12px}
+.brand .logo{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:21px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--c1));color:#fff;
+}
+.brand h1{margin:0;font-size:15.5px;letter-spacing:.2px}
+.brand small{color:var(--muted);font-size:11.5px;display:block;margin-top:1px}
+.nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.nav .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);padding:10px 10px 4px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:none;border:0;border-radius:11px;padding:9px 10px;color:var(--text);
+}
+.nav-item .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px;flex:none;background:var(--card2);border:1px solid var(--border)}
+.nav-item .nm{flex:1;min-width:0}
+.nav-item .nm b{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-item .nm span{font-size:11px;color:var(--muted)}
+.nav-item:hover{background:var(--card2)}
+.nav-item.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--on-accent)}
+.nav-item.active .ic{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.25)}
+.nav-item.active .nm span{color:rgba(255,255,255,.8)}
+.side-foot{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border);padding-top:12px}
+.seg{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:none;border-radius:8px;padding:6px 4px;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:4px}
+.seg button.active{background:var(--card);color:var(--text);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.side-row{display:flex;gap:8px}
+.side-row .btn{flex:1}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.switch b{font-size:12.5px}
+.toggle{width:40px;height:22px;border-radius:99px;background:var(--border);border:0;position:relative;transition:background .2s;flex:none}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.toggle.on{background:var(--accent)}
+.toggle.on::after{left:21px}
+
+/* ---------- Main / topbar ---------- */
+#main{padding:18px 22px 60px;min-width:0}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+#hamb{display:none}
+@media (max-width:1080px){ #hamb{display:grid} }
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--card);display:grid;place-items:center;font-size:17px}
+.crumbs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1;min-width:0}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:99px;padding:6px 12px;font-size:12.5px;color:var(--muted);max-width:100%}
+.chip b{color:var(--text);font-weight:600}
+.chip.src{cursor:default}
+.chip[contenteditable="true"],.chip input{outline:none}
+.chip input{background:none;border:0;color:var(--text);width:110px;font-size:12.5px}
+h2.pgtitle{margin:0;font-size:21px;letter-spacing:-.2px}
+.aporte-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:7px 12px}
+.aporte-box label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.aporte-box input{width:92px;border:0;background:none;color:var(--text);font-weight:700;font-size:15px;text-align:right}
+.aporte-box input:focus{outline:2px solid var(--accent);border-radius:6px}
+
+.btn{border:1px solid var(--border);background:var(--card);border-radius:10px;padding:8px 13px;font-size:13px;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{background:var(--card2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+.btn.primary:hover{background:var(--accent2)}
+.btn.danger{color:var(--red);border-color:var(--red)}
+.btn.small{padding:5px 10px;font-size:12px;border-radius:8px}
+
+/* ---------- Pages ---------- */
+.page{display:none}
+.page.active{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px;min-width:0}
+.card h3{margin:0 0 2px;font-size:15px}
+.card .sub{color:var(--muted);font-size:12px;margin-bottom:12px}
+.card-head{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.card-head .tt{flex:1;min-width:180px}
+.card-head h3{margin:0}
+.card-head .sub{margin:2px 0 0}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow);padding:13px 14px;cursor:pointer;transition:transform .12s,border-color .12s;position:relative;min-width:0}
+.kpi:hover{transform:translateY(-2px);border-color:var(--accent)}
+.kpi:focus-visible{outline:2px solid var(--accent)}
+.kpi .top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.kpi .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px;flex:none}
+.kpi .lb{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;line-height:1.2}
+.kpi .val{font-size:21px;font-weight:750;letter-spacing:-.3px;white-space:nowrap}
+.kpi .hint{font-size:11.5px;color:var(--muted);margin-top:3px}
+.kpi.green .ic{background:var(--green-bg);color:var(--green)} .kpi.green .val{color:var(--green)}
+.kpi.red .ic{background:var(--red-bg);color:var(--red)} .kpi.red .val{color:var(--red)}
+.kpi.blue .ic{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)} .kpi.blue .val{color:var(--accent)}
+.kpi.warn .ic{background:var(--warn-bg);color:var(--warn)} .kpi.warn .val{color:var(--warn)}
+.kpi.purple .ic{background:color-mix(in srgb,var(--c1) 14%,transparent);color:var(--c1)} .kpi.purple .val{color:var(--c1)}
+.pulse{animation:pulse 1s ease 2}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent)}70%{box-shadow:0 0 0 12px transparent}100%{box-shadow:0 0 0 0 transparent}}
+
+/* Charts grid */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media (max-width:980px){ .charts{grid-template-columns:1fr} }
+
+/* Donut */
+.donut-wrap{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.donut-box{position:relative;flex:none}
+.donut-box svg{width:230px;height:230px}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center}
+.donut-center b{font-size:19px}
+.donut-center span{font-size:11px;color:var(--muted);max-width:110px}
+.seg-piece{cursor:pointer;transition:opacity .15s}
+.seg-piece:hover{opacity:.82}
+.legend{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px}
+.lg{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 8px;border-radius:8px;border:0;background:none;text-align:left;width:100%;min-width:0}
+.lg:hover{background:var(--card2)}
+.lg .dot{width:10px;height:10px;border-radius:3px;flex:none}
+.lg .n{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.lg .v{font-weight:600;white-space:nowrap}
+.mini-seg{display:flex;gap:4px}
+.mini-seg button{border:1px solid var(--border);background:var(--card2);border-radius:8px;font-size:11.5px;padding:4px 9px;color:var(--muted)}
+.mini-seg button.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+
+/* Bars */
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar-row{display:grid;grid-template-columns:86px 1fr 74px;align-items:center;gap:10px;cursor:pointer;border-radius:8px;padding:2px 4px}
+.bar-row:hover{background:var(--card2)}
+.bar-row .nm{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;color:var(--muted)}
+.bar-row .nm b{color:var(--text);font-weight:600}
+.bar-track{position:relative;height:16px}
+.bar-axis{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--border)}
+.bar-fill{position:absolute;top:2px;height:12px;border-radius:5px;min-width:2px}
+.bar-fill.pos{background:var(--green)} .bar-fill.neg{background:var(--red)}
+.bar-row .vv{font-size:12px;font-weight:650;text-align:right;white-space:nowrap}
+.bar-row .vv.pos{color:var(--green)} .bar-row .vv.neg{color:var(--red)}
+
+/* Compare */
+.cmp{display:flex;flex-direction:column;gap:10px}
+.cmp-row{cursor:pointer;border-radius:8px;padding:4px 6px}
+.cmp-row:hover{background:var(--card2)}
+.cmp-top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;gap:8px}
+.cmp-top b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp-top span{color:var(--muted);white-space:nowrap}
+.cmp-bar{height:8px;border-radius:4px;background:var(--card2);border:1px solid var(--border);position:relative;margin-bottom:3px;overflow:hidden}
+.cmp-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+.cmp-bar.ideal i{background:color-mix(in srgb,var(--accent) 30%,transparent)}
+.cmp-bar.atual i{background:var(--accent)}
+
+/* Table */
+.tbl-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.tbl-tools input[type=search]{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text);min-width:180px;flex:1;max-width:280px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:920px;font-size:12.8px}
+th,td{padding:8px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)}
+th{position:sticky;top:0;background:var(--card2);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+th.nosort{cursor:default}
+td:first-child,th:first-child{ text-align:center }
+th:nth-child(2),td:nth-child(2){text-align:left;position:sticky;left:0;background:var(--card)}
+th:nth-child(2){background:var(--card2)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+tbody tr.hl td{animation:rowhl 1.6s ease}
+@keyframes rowhl{0%{background:color-mix(in srgb,var(--warn) 30%,transparent)}100%{background:transparent}}
+td.tk{font-weight:650;text-align:left;position:sticky;left:0;background:var(--card)}
+td .tk-sub{display:block;font-size:10.5px;color:var(--muted);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
+td.num{font-variant-numeric:tabular-nums}
+td.neg{color:var(--red);font-weight:600}
+td.pos{color:var(--green);font-weight:600}
+td .pctbar{display:inline-block;vertical-align:middle;width:44px;height:6px;border-radius:3px;background:var(--card2);border:1px solid var(--border);margin-left:6px;overflow:hidden}
+td .pctbar i{display:block;height:100%;background:var(--accent)}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:650}
+.badge.sim{background:var(--green-bg);color:var(--green)}
+.badge.nao{background:var(--red-bg);color:var(--red)}
+.badge.void{background:var(--card2);color:var(--muted)}
+td.editable{cursor:text}
+td.editable:hover{box-shadow:inset 0 0 0 1px var(--accent);border-radius:4px}
+td input.cell{width:88px;background:var(--card2);border:1px solid var(--accent);border-radius:6px;padding:3px 6px;color:var(--text);text-align:right;font-size:12.5px}
+td input.cell.txt{text-align:left;width:110px}
+.del-btn{border:0;background:none;color:var(--muted);font-size:14px;border-radius:6px;padding:2px 6px}
+.del-btn:hover{background:var(--red-bg);color:var(--red)}
+.total-tr td{background:var(--card2)!important;font-weight:700;font-size:13px;border-top:2px solid var(--border)}
+.help-line{font-size:12px;color:var(--muted);margin-top:10px}
+
+/* Overview */
+.grid-ov{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:980px){ .grid-ov{grid-template-columns:1fr} }
+.pf-row{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center;cursor:pointer;padding:5px 6px;border-radius:8px}
+.pf-row:hover{background:var(--card2)}
+.pf-row .nm{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;color:var(--muted)}
+.pf-row .nm b{color:var(--text)}
+.pf-track{height:18px;background:var(--card2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.pf-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--c1))}
+.pf-row .vv{font-weight:650;font-size:12.5px;text-align:right}
+.file-tbl{width:100%;min-width:0;font-size:12.8px}
+.file-tbl th{cursor:default}
+.file-tbl td:first-child,.file-tbl th:first-child{text-align:left}
+.file-tbl td{cursor:pointer}
+.note{font-size:12px;color:var(--muted);background:var(--card2);border:1px dashed var(--border);border-radius:10px;padding:10px 12px;margin-top:12px}
+
+/* Drawer */
+#drawer{position:fixed;top:0;right:-420px;width:min(400px,92vw);bottom:0;background:var(--card);border-left:1px solid var(--border);box-shadow:var(--shadow);z-index:60;transition:right .25s;display:flex;flex-direction:column}
+#drawer.open{right:0}
+.dr-head{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border)}
+.dr-head .tt{flex:1;min-width:0}
+.dr-head h3{margin:0;font-size:18px;word-break:break-all}
+.dr-head .sub{color:var(--muted);font-size:12px}
+.dr-body{padding:16px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px}
+.fld{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fld .f{display:flex;flex-direction:column;gap:4px}
+.fld label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.fld input{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:8px 10px;color:var(--text)}
+.fld input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.fld input:disabled{opacity:.55}
+.dr-foot{padding:14px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.dr-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dr-kpi{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.dr-kpi span{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block}
+.dr-kpi b{font-size:15px}
+
+/* Modal */
+#modal{position:fixed;inset:0;background:rgba(8,14,26,.55);display:none;place-items:center;z-index:70;padding:18px}
+#modal.open{display:grid}
+.md-box{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);width:min(600px,100%);max-height:86vh;display:flex;flex-direction:column;animation:fade .18s ease}
+.md-head{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--border)}
+.md-head h3{margin:0;flex:1;font-size:16px}
+.md-body{padding:12px 18px 18px;overflow-y:auto}
+.md-list{display:flex;flex-direction:column;gap:6px}
+.md-item{display:flex;align-items:center;gap:10px;border:1px solid var(--border);background:var(--card2);border-radius:10px;padding:9px 12px;cursor:pointer;text-align:left;width:100%}
+.md-item:hover{border-color:var(--accent)}
+.md-item .n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.md-item .n small{display:block;font-weight:400;color:var(--muted)}
+.md-item .v{font-weight:700;white-space:nowrap}
+.md-item .v.pos{color:var(--green)} .md-item .v.neg{color:var(--red)}
+
+/* Toast + tooltip */
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:13px;font-weight:600;z-index:90;transition:transform .25s;pointer-events:none;box-shadow:var(--shadow)}
+#toast.show{transform:translate(-50%,0)}
+#tooltip{position:fixed;background:var(--text);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:8px;pointer-events:none;z-index:95;display:none;max-width:260px;box-shadow:var(--shadow)}
+#backdrop{position:fixed;inset:0;background:rgba(8,14,26,.5);z-index:35;display:none}
+#backdrop.show{display:block}
+@media (max-width:640px){
+  #main{padding:14px 12px 60px}
+  .kpi .val{font-size:18px}
+  .donut-box svg{width:190px;height:190px}
+  .bar-row{grid-template-columns:70px 1fr 64px}
+  .pf-row{grid-template-columns:110px 1fr 76px}
+}
+@media print{ #sidebar,#hamb,.tbl-tools,.side-foot{display:none!important} }
+
+/* ---------- Cotações ao vivo ---------- */
+.qbtn.busy .ico{display:inline-block;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.qchip{cursor:default;gap:7px}
+.qchip .qdot{width:9px;height:9px}
+.qdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.qdot.green{background:var(--green)} .qdot.warn{background:var(--warn)} .qdot.red{background:var(--red)} .qdot.muted{background:var(--muted)}
+td .qdot{margin-right:6px}
+.dr-live{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12.5px;display:flex;flex-direction:column;gap:4px}
+.dr-live.manual{border-color:var(--warn)}
+.dr-live .var{font-weight:700}
+.dr-live .var.pos{color:var(--green)} .dr-live .var.neg{color:var(--red)}
+
+/* ===== v4: temas de cor + polimento ===== */
+:root[data-accent="verde"]{--accent:#15803d;--accent2:#166534}
+:root[data-accent="violeta"]{--accent:#7c3aed;--accent2:#6d28d9}
+:root[data-accent="ambar"]{--accent:#c2410c;--accent2:#9a3412}
+:root[data-accent="rosa"]{--accent:#db2777;--accent2:#be185d}
+:root[data-theme="dark"][data-accent="verde"]{--accent:#4ade80;--accent2:#22c55e}
+:root[data-theme="dark"][data-accent="violeta"]{--accent:#a78bfa;--accent2:#8b5cf6}
+:root[data-theme="dark"][data-accent="ambar"]{--accent:#fb923c;--accent2:#f97316}
+:root[data-theme="dark"][data-accent="rosa"]{--accent:#f472b6;--accent2:#ec4899}
+.swatches{display:flex;gap:8px;justify-content:center;padding:2px 0}
+.swatches button{width:22px;height:22px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--border);padding:0}
+.swatches button.active{box-shadow:0 0 0 2px var(--text)}
+td,th,.kpi,.kpis{font-variant-numeric:tabular-nums}
+.topbar{position:sticky;top:0;z-index:30;padding:10px 0;margin:-10px 0 14px;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px)}
+.card{transition:box-shadow .2s,transform .2s}
+.card:hover{transform:translateY(-1px)}
+.btn{transition:background .15s,border-color .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--card2) 55%,transparent)}
+*{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+#modal{backdrop-filter:blur(4px)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:640px){#main{padding:12px 12px 60px}.card{padding:13px}}
+/* busca de ETF */
+.ad-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.ad-row label{font-size:12px;color:var(--muted);min-width:62px}
+.ad-row input,.ad-row select{flex:1;min-width:0;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text)}
+.sr-list{display:flex;flex-direction:column;gap:4px;max-height:230px;overflow:auto;margin-bottom:8px}
+.sr-item{display:flex;align-items:center;gap:10px;text-align:left;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.sr-item:hover{border-color:var(--accent)}
+.sr-item b{min-width:84px}.sr-item span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.sr-item i{font-style:normal;font-size:11px;color:var(--muted)}
+.pv{border:1px solid var(--border);background:var(--card2);border-radius:14px;padding:14px;margin-top:6px}
+.pv h4{margin:0;font-size:15px}.pv .sub{margin:2px 0 10px;color:var(--muted);font-size:12px}
+.pv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:10px}
+.pv-grid div{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.pv-grid small{display:block;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em}
+.pv-grid b{font-size:14px}.up{color:var(--green)}.dn{color:var(--red)}
+.pv-add{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.pv-add input{width:110px;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:8px 10px;color:var(--text)}
+</style>
+</head>
+<body>
+<div id="backdrop"></div>
+
+<div class="app">
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="logo" id="logoIco">🌙</div>
+      <div>
+        <h1>Enxuta 3.0 USD</h1>
+        <small>Dashboard de Rebalanceamento</small>
+      </div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Carteiras"></nav>
+    <div class="side-foot">
+      <div class="switch">
+        <b>✏️ Modo editar</b>
+        <button class="toggle on" id="editToggle" aria-label="Alternar modo de edição"></button>
+      </div>
+      <div class="switch">
+        <b>🔄 Cotação automática</b>
+        <button class="toggle on" id="autoQToggle" aria-label="Alternar cotação automática"></button>
+      </div>
+      <div class="seg" id="themeSeg" role="group" aria-label="Tema">
+        <button data-th="auto">Auto</button>
+        <button data-th="light">☀️ Dia</button>
+        <button data-th="dark">🌙 Noite</button>
+      </div>
+      <div class="swatches" id="accentSw" role="group" aria-label="Cor de destaque">
+        <button data-ac="azul" style="background:#2563eb" title="Azul"></button>
+        <button data-ac="verde" style="background:#15803d" title="Verde"></button>
+        <button data-ac="violeta" style="background:#7c3aed" title="Violeta"></button>
+        <button data-ac="ambar" style="background:#c2410c" title="Âmbar"></button>
+        <button data-ac="rosa" style="background:#db2777" title="Rosa"></button>
+      </div>
+      <div class="side-row">
+        <button class="btn small" id="btnExport" title="Exportar dados alterados (JSON)">⬇️ JSON</button>
+        <button class="btn small" id="btnImport" title="Importar JSON">⬆️ Importar</button>
+        <button class="btn small" id="btnProxy" title="Proxy de cotações (Cloudflare Worker)">🔌 Proxy</button>
+        <button class="btn small" id="btnResetAll" title="Descartar TODAS as edições">↺ Tudo</button>
+      </div>
+      <input type="file" id="fileImport" accept=".json,application/json" hidden>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main id="main">
+    <header class="topbar">
+      <button class="icon-btn" id="hamb" aria-label="Abrir menu">☰</button>
+      <div class="crumbs" id="crumbs"></div>
+      <button class="btn primary" id="btnAddEtf" title="Adicionar ETF buscando por nome ou ticker">＋ ETF</button>
+      <button class="btn qbtn" id="btnQuotes" title="Buscar preços atuais dos ETFs no Yahoo Finance"><span class="ico">🔄</span> Preços ao vivo</button>
+      <span class="chip qchip" id="quoteStatus" data-tip="Situação das cotações ao vivo">—</span>
+      <div class="aporte-box" id="aporteBox" title="Aporte simulado: altera os valores ideais e recalcula tudo">
+        <label>Aporte US$</label>
+        <input id="aporteInput" inputmode="decimal" value="0,00">
+      </div>
+    </header>
+
+    <!-- ---------- Página: Visão Geral ---------- -->
+    <section class="page" id="page-overview">
+      <h2 class="pgtitle" style="margin-bottom:14px">🧭 Visão Geral — 8 planilhas</h2>
+      <div class="kpis" id="ovKpis"></div>
+      <div class="grid-ov">
+        <div class="card">
+          <div class="card-head">
+            <div class="tt"><h3>💰 Total investido por carteira</h3><p class="sub">Clique numa barra para abrir a carteira</p></div>
+          </div>
+          <div class="bars" id="ovBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="tt"><h3>🗺️ Geografia dos ativos citados</h3><p class="sub">Tickers únicos em todas as planilhas · clique para detalhar</p></div>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut-box" id="ovDonut"></div>
+            <div class="legend" id="ovLegend"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="tt"><h3>📁 Arquivos enviados</h3><p class="sub">Clique numa linha para abrir a planilha no dashboard</p></div>
+        </div>
+        <div class="tbl-wrap"><table class="file-tbl" id="ovTable"></table></div>
+        <div class="note">⚠️ As planilhas compartilham o mesmo núcleo (121,26 US$ na versão Enxuta 3.0 USD) e representam fases/visões da mesma estratégia — por isso a soma dos totais serve apenas como referência dos arquivos, não como patrimônio somado.</div>
+      </div>
+    </section>
+
+    <!-- ---------- Página: Carteira ---------- -->
+    <section class="page" id="page-port">
+      <div class="kpis" id="kpiGrid"></div>
+
+      <div class="charts">
+        <div class="card">
+          <div class="card-head">
+            <div class="tt"><h3>🍩 Alocação</h3><p class="sub">Clique numa fatia ou na legenda para editar o ativo</p></div>
+            <div class="mini-seg" id="donutModes">
+              <button data-m="asset" class="active">Ativo</button>
+              <button data-m="geo">Geografia</button>
+              <button data-m="fator">Fator</button>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut-box" id="pfDonut"></div>
+            <div class="legend" id="pfLegend"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="tt"><h3>⚖️ Valor faltante por ativo</h3><p class="sub">🟢 comprar · 🔴 vender — clique para editar o ativo</p></div>
+          </div>
+          <div class="bars" id="pfBars"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:0">
+          <div class="card-head">
+            <div class="tt"><h3>🎯 % ideal vs % atual</h3><p class="sub">Barra clara = alvo · barra cheia = posição hoje</p></div>
+          </div>
+          <div class="cmp" id="pfCmp"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:0">
+          <div class="card-head">
+            <div class="tt"><h3>🧮 Resumo por fator</h3><p class="sub">Valor atual e alvo agregados por fator de investimento</p></div>
+          </div>
+          <div class="bars" id="pfFator"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="tt"><h3>📋 Tabela de ativos</h3><p class="sub">Fonte: <span id="srcFile" style="font-weight:600"></span></p></div>
+          <button class="btn small primary" id="btnAddRow">＋ Adicionar ativo</button>
+          <button class="btn small" id="btnCsv">⬇️ CSV</button>
+          <button class="btn small" id="btnRestore">↺ Restaurar original</button>
+        </div>
+        <div class="tbl-tools">
+          <input type="search" id="tblFilter" placeholder="🔎 Filtrar por ticker, geografia ou fator…">
+          <span class="sub" id="tblInfo" style="color:var(--muted);font-size:12px"></span>
+        </div>
+        <div class="tbl-wrap"><table id="pfTable"></table></div>
+        <p class="help-line" id="editHint">💡 Modo editar <b>ativo</b>: clique em qualquer célula para alterar (aceita vírgula ou ponto). Aporte, %, preços e quantidades recalculam tudo na hora e ficam salvos neste navegador.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ===================== DRAWER (editor de ativo) ===================== -->
+<div id="drawer" aria-hidden="true">
+  <div class="dr-head">
+    <div class="tt"><h3 id="drTicker">—</h3><div class="sub" id="drSub"></div></div>
+    <button class="icon-btn" id="drClose" aria-label="Fechar">✕</button>
+  </div>
+  <div class="dr-body" id="drBody"></div>
+  <div class="dr-foot">
+    <button class="btn" id="drPrev">← Anterior</button>
+    <button class="btn" id="drNext">Próximo →</button>
+    <button class="btn danger" id="drDel" style="margin-left:auto">🗑 Excluir</button>
+  </div>
+</div>
+
+<!-- ===================== MODAL ===================== -->
+<div id="modal" role="dialog" aria-modal="true">
+  <div class="md-box">
+    <div class="md-head">
+      <h3 id="mdTitle">—</h3>
+      <button class="icon-btn" id="mdClose" aria-label="Fechar">✕</button>
+    </div>
+    <div class="md-body" id="mdBody"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="tooltip"></div>
+
+<script>
+'use strict';
+/* ================= DADOS (injetado no build) ================= */
+const RAW = [{"id":"dividendos","file":"Dividendos.html","aporte":0.0,"carteira":"Dividendos BRL","versao":"Enxuta 3.0 USD","prazo":"3 a 5 anos depois","total_investido_file":121.26,"total_projetado_file":121.26,"assets":[{"ticker":"VALU.L","geo":"Mundo LSE","fator":"Base Neutra Nova","pct":28.0,"qtd":1.0,"precoLocal":4.73,"preco":4.73,"blank":false},{"ticker":"AVGS.L","geo":"Desenvolvidos LSE","fator":"Smallcaps Valor","pct":3.0,"qtd":1.0,"precoLocal":27.73,"preco":27.73,"blank":false},{"ticker":"EMVL.L","geo":"Emergentes LSE","fator":"Empresas Valor","pct":3.0,"qtd":1.0,"precoLocal":88.8,"preco":88.8,"blank":false},{"ticker":"IWQU.L","geo":"Desenvolvidos LSE","fator":"Empresas Qualidade","pct":6.0,"qtd":0.0,"precoLocal":87.72,"preco":87.72,"blank":false},{"ticker":"MVOL.L","geo":"Desenvolvidos LSE","fator":"Baixa Volatilidade","pct":20.0,"qtd":0.0,"precoLocal":79.69,"preco":79.69,"blank":false},{"ticker":"NDIV11.SA","geo":"Brasil B3","fator":"Dividendos BRL","pct":25.0,"qtd":0.0,"precoLocal":114.74,"preco":19.9,"blank":false},{"ticker":"JURO11.SA","geo":"Brasil B3","fator":"FI-Infra 1","pct":5.0,"qtd":0.0,"precoLocal":89.2,"preco":15.47,"blank":false},{"ticker":"KDIF11.SA","geo":"Brasil B3","fator":"FI-Infra 2","pct":5.0,"qtd":0.0,"precoLocal":105.96,"preco":18.38,"blank":false},{"ticker":"IFRA11.SA","geo":"Brasil B3","fator":"FI-Infra 3","pct":5.0,"qtd":0.0,"precoLocal":82.11,"preco":14.24,"blank":false}]},{"id":"fase1","file":"Fase1.html","aporte":0.0,"carteira":"Fase 1","versao":"Enxuta 3.0 USD","prazo":"10 a 25 anos","total_investido_file":121.26,"total_projetado_file":121.26,"assets":[{"ticker":"VALU.L","geo":"Mundo LSE","fator":"Base Neutra Nova","pct":60.0,"qtd":1.0,"precoLocal":4.73,"preco":4.73,"blank":false},{"ticker":"AVGS.L","geo":"Desenvolvidos LSE","fator":"Smallcaps Valor","pct":25.0,"qtd":1.0,"precoLocal":27.73,"preco":27.73,"blank":false},{"ticker":"EMVL.L","geo":"Emergentes LSE","fator":"Empresas Valor","pct":15.0,"qtd":1.0,"precoLocal":88.8,"preco":88.8,"blank":false}]},{"id":"fase2","file":"Fase2.html","aporte":0.0,"carteira":"Fase 2","versao":"Enxuta 3.0 USD","prazo":"5 a 10 anos depois","total_investido_file":121.26,"total_projetado_file":121.26,"assets":[{"ticker":"VALU.L","geo":"Mundo LSE","fator":"Base Neutra Nova","pct":35.0,"qtd":1.0,"precoLocal":4.73,"preco":4.73,"blank":false},{"ticker":"AVGS.L","geo":"Desenvolvidos LSE","fator":"Smallcaps Valor","pct":15.0,"qtd":1.0,"precoLocal":27.73,"preco":27.73,"blank":false},{"ticker":"EMVL.L","geo":"Emergentes LSE","fator":"Empresas Valor","pct":10.0,"qtd":1.0,"precoLocal":88.8,"preco":88.8,"blank":false},{"ticker":"IWQU.L","geo":"Desenvolvidos LSE","fator":"Empresas Qualidade","pct":15.0,"qtd":0.0,"precoLocal":87.72,"preco":87.72,"blank":false},{"ticker":"MVOL.L","geo":"Desenvolvidos LSE","fator":"Baixa Volatilidade","pct":25.0,"qtd":0.0,"precoLocal":79.69,"preco":79.69,"blank":false}]},{"id":"fase3","file":"Fase3.html","aporte":0.0,"carteira":"Fase 3","versao":"Enxuta 3.0 USD","prazo":"3 a 5 anos depois","total_investido_file":121.26,"total_projetado_file":121.26,"assets":[{"ticker":"VALU.L","geo":"Mundo LSE","fator":"Base Neutra Nova","pct":28.0,"qtd":1.0,"precoLocal":4.73,"preco":4.73,"blank":false},{"ticker":"AVGS.L","geo":"Desenvolvidos LSE","fator":"Smallcaps Valor","pct":3.0,"qtd":1.0,"precoLocal":27.73,"preco":27.73,"blank":false},{"ticker":"EMVL.L","geo":"Emergentes LSE","fator":"Empresas Valor","pct":3.0,"qtd":1.0,"precoLocal":88.8,"preco":88.8,"blank":false},{"ticker":"IWQU.L","geo":"Desenvolvidos LSE","fator":"Empresas Qualidade","pct":6.0,"qtd":0.0,"precoLocal":87.72,"preco":87.72,"blank":false},{"ticker":"MVOL.L","geo":"Desenvolvidos LSE","fator":"Baixa Volatilidade","pct":20.0,"qtd":0.0,"precoLocal":79.69,"preco":79.69,"blank":false},{"ticker":"NTNS11.SA","geo":"Brasil B3","fator":"IPCA Curto Prazo","pct":15.0,"qtd":0.0,"precoLocal":69.57,"preco":12.07,"blank":false},{"ticker":"HYBR11.SA","geo":"Mundo B3","fator":"High Yield em BRL","pct":10.0,"qtd":0.0,"precoLocal":55.94,"preco":9.7,"blank":false},{"ticker":"LVOL11.SA","geo":"Brasil B3","fator":"Baixa Vol. Brasil","pct":10.0,"qtd":0.0,"precoLocal":134.2,"preco":23.28,"blank":false},{"ticker":"LFTB11.SA","geo":"Brasil B3","fator":"Smart Selic BRL","pct":5.0,"qtd":0.0,"precoLocal":128.75,"preco":22.33,"blank":false}]},{"id":"livre","file":"Livre.html","aporte":0.0,"carteira":"Livre Edição","versao":"Enxuta 3.0 USD","prazo":"10 anos ou mais","total_investido_file":121.26,"total_projetado_file":121.26,"assets":[{"ticker":"VALU.L","geo":"Mundo LSE","fator":"Base Neutra Nova","pct":60.0,"qtd":1.0,"precoLocal":4.73,"preco":4.73,"blank":false},{"ticker":"AVGS.L","geo":"Desenvolvidos LSE","fator":"Smallcaps Valor","pct":25.0,"qtd":1.0,"precoLocal":27.73,"preco":27.73,"blank":false},{"ticker":"EMVL.L","geo":"Emergentes LSE","fator":"Empresas Valor","pct":15.0,"qtd":1.0,"precoLocal":88.8,"preco":88.8,"blank":false}]},{"id":"rfixabrl","file":"RFixaBRL.html","aporte":0.0,"carteira":"Renda Fixa BRL","versao":"Enxuta 3.0 USD","prazo":"1 a 10 anos","total_investido_file":44.1,"total_projetado_file":44.1,"assets":[{"ticker":"NTNS11.SA","geo":"Brasil B3","fator":"IPCA Curto Prazo","pct":50.0,"qtd":1.0,"precoLocal":69.57,"preco":12.07,"blank":false},{"ticker":"LFTB11.SA","geo":"Brasil B3","fator":"Smart Selic","pct":10.0,"qtd":1.0,"precoLocal":128.75,"preco":22.33,"blank":false},{"ticker":"HYBR11.SA","geo":"Mundo B3","fator":"High Yield BRL","pct":10.0,"qtd":1.0,"precoLocal":55.94,"preco":9.7,"blank":false},{"ticker":"JURO11.SA","geo":"Brasil B3","fator":"FI-Infra 1","pct":10.0,"qtd":0.0,"precoLocal":89.2,"preco":15.47,"blank":false},{"ticker":"KDIF11.SA","geo":"Brasil B3","fator":"FI-Infra 2","pct":10.0,"qtd":0.0,"precoLocal":105.96,"preco":18.38,"blank":false},{"ticker":"IFRA11.SA","geo":"Brasil B3","fator":"FI-Infra 3","pct":10.0,"qtd":0.0,"precoLocal":82.11,"preco":14.24,"blank":false}]},{"id":"rfixausd","file":"RFixaUSD.html","aporte":0.0,"carteira":"Renda Fixa USD","versao":"Enxuta 3.0 USD","prazo":"1 a 10 anos","total_investido_file":192.11,"total_projetado_file":192.11,"assets":[{"ticker":"IHYA.L","geo":"Mundo LSE","fator":"High Yield USD","pct":50.0,"qtd":1.0,"precoLocal":7.36,"preco":7.36,"blank":false},{"ticker":"VDCA.L","geo":"EUA LSE","fator":"Crédito 1-3 anos","pct":20.0,"qtd":1.0,"precoLocal":62.14,"preco":62.14,"blank":false},{"ticker":"IB01.L","geo":"EUA LSE","fator":"Tesouro 1 ano","pct":30.0,"qtd":1.0,"precoLocal":122.62,"preco":122.62,"blank":false}]},{"id":"saidausd","file":"SaídaUSD.html","aporte":0.0,"carteira":"Saída Fiscal USD","versao":"Enxuta 3.0 USD","prazo":"3 a 5 anos depois","total_investido_file":121.26,"total_projetado_file":121.26,"assets":[{"ticker":"VALU.L","geo":"Mundo LSE","fator":"Base Neutra Nova","pct":28.0,"qtd":1.0,"precoLocal":4.73,"preco":4.73,"blank":false},{"ticker":"AVGS.L","geo":"Desenvolvidos LSE","fator":"Smallcaps Valor","pct":3.0,"qtd":1.0,"precoLocal":27.73,"preco":27.73,"blank":false},{"ticker":"EMVL.L","geo":"Emergentes LSE","fator":"Empresas Valor","pct":3.0,"qtd":1.0,"precoLocal":88.8,"preco":88.8,"blank":false},{"ticker":"IWQU.L","geo":"Desenvolvidos LSE","fator":"Empresas Qualidade","pct":6.0,"qtd":0.0,"precoLocal":87.72,"preco":87.72,"blank":false},{"ticker":"MVOL.L","geo":"Desenvolvidos LSE","fator":"Baixa Volatilidade","pct":20.0,"qtd":0.0,"precoLocal":79.69,"preco":79.69,"blank":false},{"ticker":"IHYA.L","geo":"Mundo LSE","fator":"High Yield USD","pct":20.0,"qtd":0.0,"precoLocal":7.36,"preco":7.36,"blank":false},{"ticker":"VDCA.L","geo":"EUA LSE","fator":"Crédito 1-3 anos","pct":10.0,"qtd":0.0,"precoLocal":62.14,"preco":62.14,"blank":false},{"ticker":"IB01.L","geo":"EUA LSE","fator":"Tesouro 1 ano","pct":10.0,"qtd":0.0,"precoLocal":122.62,"preco":122.62,"blank":false}]}];
+
+/* ================= ESTADO ================= */
+const LS_KEY = 'dash.enxuta3.v1';
+const store = (() => {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
+  catch (e) { return {}; }
+})();
+store.edits = store.edits || {};
+store.theme = store.theme || 'auto';
+store.editMode = store.editMode !== false; // editável por padrão
+store.autoQ = store.autoQ !== false;       // cotação automática ligada por padrão
+store.qc = store.qc || null;               // cache de cotações ao vivo {SYM: {...}, fx: {...}}
+
+const state = { view: 'overview', donutMode: 'asset', sort: null, filter: '', drawer: null };
+const work = {}; // cópias vivas por id
+
+function saveStore() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch (e) {}
+}
+function P(pid) { // devolve cópia viva (carrega edições salvas)
+  if (!work[pid]) {
+    const src = store.edits[pid] || RAW.find(p => p.id === pid);
+    work[pid] = JSON.parse(JSON.stringify(src));
+  }
+  return work[pid];
+}
+function commit(pid) { // persiste a carteira atual como edição
+  store.edits[pid] = JSON.parse(JSON.stringify(work[pid]));
+  saveStore();
+}
+
+/* ================= UTILITÁRIOS ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function fmt(v, d = 2) { // 1234.5 -> "1.234,50"
+  return (Math.abs(v) < 5e-11 ? 0 : v).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function usd(v, d = 2) { return 'US$ ' + fmt(v, d); }
+function pctf(v, d = 2) { return fmt(v, d) + '%'; }
+function parseNum(s) {
+  if (typeof s === 'number') return s;
+  if (s == null) return 0;
+  s = String(s).trim().replace(/\s/g, '').replace('%', '');
+  if (!s) return 0;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
+let toastTimer = null;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* tooltip flutuante */
+(function () {
+  const tip = $('#tooltip');
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tip]');
+    if (!el) return;
+    tip.textContent = el.dataset.tip;
+    tip.style.display = 'block';
+    const move = ev => {
+      const x = Math.min(ev.clientX + 14, innerWidth - tip.offsetWidth - 8);
+      const y = Math.min(ev.clientY + 14, innerHeight - tip.offsetHeight - 8);
+      tip.style.left = x + 'px'; tip.style.top = y + 'px';
+    };
+    move(e);
+    el.addEventListener('mousemove', move);
+    el.addEventListener('mouseleave', () => { tip.style.display = 'none'; el.removeEventListener('mousemove', move); }, { once: true });
+  });
+})();
+
+/* ================= RECÁLCULO ================= */
+function recalc(p) {
+  p.aporte = parseNum(p.aporte);
+  let ti = 0;
+  p.assets.forEach(a => {
+    a.pct = parseNum(a.pct); a.qtd = parseNum(a.qtd); a.preco = parseNum(a.preco); a.precoLocal = parseNum(a.precoLocal);
+    // preço efetivo: cotação ao vivo (Yahoo Finance) > preço manual > preço do arquivo
+    a.precoEff = effPrice(a);
+    a.precoLocalEff = localPrice(a);
+    a.valorAtual = a.qtd * a.precoEff;
+    ti += a.valorAtual;
+  });
+  p.totalInv = ti;
+  p.totalProj = ti + p.aporte;
+  let desvio = 0, buyN = 0, buyV = 0, sellN = 0, sellV = 0, real = 0;
+  p.assets.forEach(a => {
+    a.pctAtual = ti > 0 ? a.valorAtual / ti * 100 : 0;
+    a.valorIdeal = a.pct / 100 * p.totalProj;
+    a.qtdIdeal = a.precoEff > 0 ? a.valorIdeal / a.precoEff : 0;
+    a.valorFalt = a.valorIdeal - a.valorAtual;
+    a.qtdFalt = a.precoEff > 0 ? a.valorFalt / a.precoEff : 0;
+    a.blank = !a.ticker;
+    if (!a.blank) {
+      real++;
+      desvio += Math.abs(a.pctAtual - a.pct);
+      if (a.qtdFalt > 0.0049 && a.pct > 0) { buyN++; buyV += a.valorFalt; }
+      else if (a.valorFalt < -0.0049 && a.pct > 0) { sellN++; sellV -= a.valorFalt; }
+    }
+  });
+  p.nReal = real;
+  p.desvio = real ? desvio / 2 : 0;
+  p.buyN = buyN; p.buyV = buyV; p.sellN = sellN; p.sellV = sellV;
+  const sumPct = p.assets.reduce((s, a) => s + (!a.blank ? a.pct : 0), 0);
+  p.sumPct = sumPct;
+  return p;
+}
+
+/* ================= TEMA (dia/noite automático) ================= */
+function autoByTime() { const h = new Date().getHours(); return h >= 19 || h < 7; }
+function isDark() {
+  const t = store.theme;
+  if (t === 'dark') return true;
+  if (t === 'light') return false;
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mq.matches) return true;
+    // sem preferência explícita do sistema -> usa relógio (noite automática)
+    return autoByTime();
+  }
+  return autoByTime();
+}
+function applyTheme() {
+  const dark = isDark();
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  $('#logoIco').textContent = dark ? '🌙' : '☀️';
+  $$('#themeSeg button').forEach(b => b.classList.toggle('active', b.dataset.th === store.theme));
+  render(); // gráficos usam cores CSS -> re-render garante contraste
+}
+function watchSystemTheme() {
+  if (!window.matchMedia) return;
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const onChange = () => { if (store.theme === 'auto') applyTheme(); };
+  if (mq.addEventListener) mq.addEventListener('change', onChange);
+  else if (mq.addListener) mq.addListener(onChange);
+  // checa virada de hora (modo Auto segue o relógio também)
+  setInterval(() => { if (store.theme === 'auto') { const d = isDark(); if (document.documentElement.dataset.theme !== (d ? 'dark' : 'light')) applyTheme(); } }, 60000);
+}
+$$('#themeSeg button').forEach(b => b.onclick = () => { store.theme = b.dataset.th; saveStore(); applyTheme(); });
+
+/* ================= NAVEGAÇÃO / ABAS LATERAIS ================= */
+const ICONS = { overview: '🧭', dividendos: '💠', fase1: '🌱', fase2: '🌿', fase3: '🌳', livre: '🧩', rfixabrl: '🏦', rfixausd: '💵', saidausd: '🛫' };
+const HUMAN = { overview: 'Visão Geral' };
+
+function navRender() {
+  const nav = $('#nav');
+  let html = '<div class="lbl">Painel</div>';
+  const mk = (pid, nm, sub) => `
+    <button class="nav-item ${state.view === pid ? 'active' : ''}" data-pid="${pid}">
+      <span class="ic">${ICONS[pid] || '📄'}</span>
+      <span class="nm"><b>${esc(nm)}</b><span>${esc(sub)}</span></span>
+    </button>`;
+  html += mk('overview', 'Visão Geral', '8 planilhas');
+  html += '<div class="lbl">Carteiras (arquivos)</div>';
+  RAW.forEach(p0 => {
+    const p = P(p0.id); recalc(p);
+    html += mk(p0.id, p.carteira || p0.file, usd(p.totalInv) + ' · ' + p0.file.replace('.html', ''));
+  });
+  nav.innerHTML = html;
+  $$('#nav .nav-item').forEach(b => b.onclick = () => go(b.dataset.pid));
+}
+
+function go(pid) {
+  state.view = pid;
+  if (typeof closeDrawer === 'function') closeDrawer();
+  closeSidebar();
+  $$('.page').forEach(s => s.classList.remove('active'));
+  $('#page-overview').classList.toggle('active', pid === 'overview');
+  $('#page-port').classList.toggle('active', pid !== 'overview');
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function closeSidebar() { $('#sidebar').classList.remove('open'); $('#backdrop').classList.remove('show'); }
+$('#hamb').onclick = () => { $('#sidebar').classList.toggle('open'); $('#backdrop').classList.toggle('show'); };
+$('#backdrop').onclick = closeSidebar;
+
+/* ================= EDIÇÃO: helpers ================= */
+function editOn() { return store.editMode; }
+$('#editToggle').onclick = function () {
+  store.editMode = !store.editMode;
+  this.classList.toggle('on', store.editMode);
+  saveStore(); render();
+  if (state.drawer && typeof drawerRender === 'function') drawerRender(); // sincroniza drawer aberto
+  toast(store.editMode ? 'Modo editar ativado' : 'Modo editar desativado (só leitura)');
+};
+function syncEditToggle() { $('#editToggle').classList.toggle('on', editOn()); $('#aporteInput').disabled = false; }
+
+// célula clicável -> input -> commit
+function cellEdit(td, get, set, opts = {}) {
+  td.classList.add('editable');
+  td.onclick = () => {
+    if (!editOn() || td.querySelector('input')) return;
+    const cur = get();
+    const inp = document.createElement('input');
+    inp.className = 'cell' + (opts.text ? ' txt' : '');
+    inp.value = cur;
+    td.textContent = '';
+    td.appendChild(inp);
+    inp.focus(); inp.select();
+    const done = ok => {
+      if (ok) set(inp.value);
+      render();
+    };
+    inp.onblur = () => done(true);
+    inp.onkeydown = e => {
+      if (e.key === 'Enter') { inp.blur(); }
+      if (e.key === 'Escape') { inp.onblur = null; done(false); }
+    };
+    inp.onclick = e => e.stopPropagation();
+  };
+}
+
+/* ================= PÁGINA: VISÃO GERAL ================= */
+function renderOverview() {
+  // KPIs
+  const ps = RAW.map(p0 => recalc(P(p0.id)));
+  const soma = ps.reduce((s, p) => s + p.totalInv, 0);
+  const uniq = new Map();
+  ps.forEach(p => p.assets.forEach(a => { if (a.ticker && !a.blank) { const k = a.ticker; if (!uniq.has(k)) uniq.set(k, { t: k, geo: a.geo, fator: a.fator, ps: [] }); uniq.get(k).ps.push(p.id); } }));
+  const geos = new Set(); uniq.forEach(u => geos.add(u.geo || '—'));
+  const kpis = [
+    { ic: '📁', cls: 'blue', lb: 'Planilhas', val: ps.length, hint: 'carteiras enviadas', tip: '8 arquivos .html enviados', act: () => { const el = $('#ovTable'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } },
+    { ic: '💰', cls: 'purple', lb: 'Soma dos totais', val: usd(soma), hint: 'referência dos arquivos', tip: 'As planilhas compartilham o mesmo núcleo; a soma é apenas referência', act: () => openModal('💰 Totais por planilha', mdTotais()) },
+    { ic: '🧩', cls: '', lb: 'Ativos únicos', val: uniq.size, hint: 'tickers citados', tip: 'Tickers únicos considerando todas as planilhas', act: () => openModal('🧩 Ativos únicos (' + uniq.size + ')', mdUniq(uniq)) },
+    { ic: '🗺️', cls: '', lb: 'Geografias', val: geos.size, hint: 'classes de exposição', tip: 'Geografias presentes nos arquivos', act: () => openModal('🗺️ Geografias', mdGeos()) },
+    { ic: '🎯', cls: 'warn', lb: 'Maior desalinho', val: (() => { const w = ps.slice().sort((a, b) => b.desvio - a.desvio)[0]; return pctf(w.desvio); })(), hint: ps.slice().sort((a, b) => b.desvio - a.desvio)[0].carteira, tip: 'Desvio médio entre % atual e % alvo', act: () => { const w = ps.slice().sort((a, b) => b.desvio - a.desvio)[0]; go(w.id); } },
+    { ic: '🟢', cls: 'green', lb: 'Oportunidades de compra', val: ps.reduce((s, p) => s + p.buyN, 0), hint: 'linhas "Aportar? SIM"', tip: 'Total de linhas com valor faltante positivo em todas as planilhas', act: () => openModal('🟢 Linhas para comprar', mdBuyAll(ps)) },
+  ];
+  $('#ovKpis').innerHTML = kpis.map((k, i) => `
+    <div class="kpi ${k.cls}" role="button" tabindex="0" data-i="${i}" data-tip="${esc(k.tip)}">
+      <div class="top"><span class="ic">${k.ic}</span><span class="lb">${k.lb}</span></div>
+      <div class="val">${k.val}</div><div class="hint">${esc(k.hint)}</div>
+    </div>`).join('');
+  $$('#ovKpis .kpi').forEach(el => {
+    const k = kpis[+el.dataset.i];
+    el.onclick = k.act;
+    el.onkeydown = e => { if (e.key === 'Enter') k.act(); };
+  });
+
+  // barras por carteira
+  const max = Math.max(...ps.map(p => p.totalInv)) || 1;
+  $('#ovBars').innerHTML = ps.map(p => `
+    <div class="pf-row" data-pid="${p.id}" role="button" tabindex="0" data-tip="Abrir ${esc(p.carteira)} (${esc(p.file)})">
+      <div class="nm"><b>${esc(p.carteira)}</b><br>${esc(p0file(p.id))}</div>
+      <div class="pf-track"><div class="pf-fill" style="width:${(p.totalInv / max * 100).toFixed(1)}%"></div></div>
+      <div class="vv">${usd(p.totalInv)}</div>
+    </div>`).join('');
+  $$('#ovBars .pf-row').forEach(r => r.onclick = () => go(r.dataset.pid));
+
+  // donut geografia (tickers únicos)
+  const byGeo = new Map();
+  uniq.forEach(u => { const g = u.geo || '—'; byGeo.set(g, (byGeo.get(g) || 0) + 1); });
+  drawDonut($('#ovDonut'), $('#ovLegend'), byGeo, (g) => openModal('🗺️ ' + g, mdGeoList(g, uniq)), 'tickers únicos', v => fmt(v, 0));
+
+  // tabela de arquivos
+  $('#ovTable').innerHTML = `
+    <thead><tr><th class="nosort">Arquivo</th><th class="nosort">Carteira</th><th class="nosort">Prazo</th><th class="nosort">Ativos</th><th class="nosort">Total US$</th><th class="nosort">Desalinho</th></tr></thead>
+    <tbody>${ps.map(p => `
+      <tr data-pid="${p.id}" title="Abrir ${esc(p.file)}">
+        <td><b>${ICONS[p.id] || ''} ${esc(p0file(p.id))}</b></td>
+        <td>${esc(p.carteira)}</td>
+        <td>${esc(p.prazo)}</td>
+        <td>${p.nReal}</td>
+        <td class="num">${usd(p.totalInv)}</td>
+        <td class="num ${p.desvio > 10 ? 'neg' : ''}">${pctf(p.desvio)}</td>
+      </tr>`).join('')}</tbody>`;
+  $$('#ovTable tbody tr').forEach(tr => tr.onclick = () => go(tr.dataset.pid));
+}
+function p0file(pid) { return RAW.find(p => p.id === pid).file; }
+
+function mdTotais() {
+  return '<div class="md-list">' + RAW.map(p0 => {
+    const p = recalc(P(p0.id));
+    return `<button class="md-item" data-pid="${p.id}"><span class="n">${ICONS[p.id] || ''} ${esc(p0file(p.id))}<small>${esc(p.carteira)} · ${p.nReal} ativos</small></span><span class="v">${usd(p.totalInv)}</span></button>`;
+  }).join('') + '</div>';
+}
+function mdUniq(uniq) {
+  const rows = Array.from(uniq.values()).sort((a, b) => a.t.localeCompare(b.t));
+  return '<div class="md-list">' + rows.map(u => `
+    <button class="md-item" data-pid="${u.ps[0]}"><span class="n">${esc(u.t)}<small>${esc(u.geo)} · ${esc(u.fator)} · em ${u.ps.length} planilha(s)</small></span><span class="v">${u.ps.length}×</span></button>`).join('') + '</div>';
+}
+function mdGeos() {
+  const m = new Map();
+  RAW.forEach(p0 => recalc(P(p0.id)).assets.forEach(a => { if (a.ticker && !a.blank) m.set(a.geo || '—', (m.get(a.geo || '—') || 0) + 1); }));
+  return '<div class="md-list">' + Array.from(m.entries()).sort((a, b) => b[1] - a[1]).map(([g, n]) => `<div class="md-item" style="cursor:default"><span class="n">${esc(g)}</span><span class="v">${n} linha(s)</span></div>`).join('') + '</div>';
+}
+function mdGeoList(g, uniq) {
+  const rows = Array.from(uniq.values()).filter(u => (u.geo || '—') === g);
+  return '<div class="md-list">' + rows.map(u => `
+    <button class="md-item" data-pid="${u.ps[0]}"><span class="n">${esc(u.t)}<small>${esc(u.fator)}</small></span><span class="v">${u.ps.length}×</span></button>`).join('') + '</div>';
+}
+function mdBuyAll(ps) {
+  let rows = '';
+  ps.forEach(p => p.assets.filter(a => a.qtdFalt > 0.0049 && a.pct > 0).forEach(a => {
+    rows += `<button class="md-item" data-pid="${p.id}" data-ai="${p.assets.indexOf(a)}"><span class="n">${esc(a.ticker)}<small>${esc(p.carteira)} · falta ${fmt(a.qtdFalt, 4)} cota(s)</small></span><span class="v pos">+${usd(a.valorFalt)}</span></button>`;
+  }));
+  return rows ? '<div class="md-list">' + rows + '</div>' : '<p class="sub">Nada a comprar no momento.</p>';
+}
+
+/* ================= MODAL ================= */
+function openModal(title, bodyHtml) {
+  $('#mdTitle').textContent = title;
+  $('#mdBody').innerHTML = bodyHtml;
+  $('#modal').classList.add('open');
+  $$('#mdBody .md-item').forEach(b => b.onclick = () => {
+    const ai = b.dataset.ai;
+    const pid = b.dataset.pid || (state.view !== 'overview' ? state.view : null);
+    if (ai != null && pid) {
+      closeModal(); go(pid);
+      setTimeout(() => openDrawer(pid, +ai), 80);
+    } else if (pid) { closeModal(); go(pid); }
+  });
+}
+function closeModal() { $('#modal').classList.remove('open'); }
+$('#mdClose').onclick = closeModal;
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDrawer(); } });
+
+/* ================= PÁGINA: CARTEIRA ================= */
+function makeEditableEl(el, get, set, opts = {}) {
+  el.style.cursor = 'text';
+  el.title = el.title || 'Clique para editar';
+  el.onclick = () => {
+    if (!editOn() || el.querySelector('input')) return;
+    const inp = document.createElement('input');
+    inp.style.cssText = 'background:none;border:0;border-bottom:2px solid var(--accent);color:var(--text);font:inherit;width:' + (opts.w || 160) + 'px';
+    inp.value = get();
+    const old = el.textContent;
+    el.textContent = '';
+    el.appendChild(inp);
+    inp.focus(); inp.select();
+    const done = ok => { if (ok) set(inp.value); render(); if (!ok) el.textContent = old; };
+    inp.onblur = () => done(true);
+    inp.onkeydown = e => { if (e.key === 'Enter') inp.blur(); if (e.key === 'Escape') { inp.onblur = null; done(false); } };
+  };
+}
+
+function crumbsRender(p) {
+  const cr = $('#crumbs');  cr.innerHTML = `
+    <span class="chip src" data-tip="Arquivo enviado por você">📁 <b>${esc(p0file(p.id))}</b></span>
+    <h2 class="pgtitle" id="pgTitle">${ICONS[p.id] || '📄'} ${esc(p.carteira)}</h2>
+    <span class="chip" id="chipVersao">🏷️ <b>${esc(p.versao)}</b></span>
+    <span class="chip" id="chipPrazo">⏳ <b>${esc(p.prazo)}</b></span>
+    ${Math.abs(p.sumPct - 100) > 0.01 ? `<span class="chip" style="border-color:var(--red);color:var(--red)" data-tip="A soma dos % alvo deve fechar em 100%">⚠️ Σ% = ${pctf(p.sumPct)}</span>` : ''}`;
+  makeEditableEl($('#pgTitle'), () => p.carteira, v => { p.carteira = v.trim() || p.carteira; commit(p.id); navRender(); });
+  makeEditableEl($('#chipVersao'), () => p.versao, v => { p.versao = v.trim(); commit(p.id); }, { w: 120 });
+  makeEditableEl($('#chipPrazo'), () => p.prazo, v => { p.prazo = v.trim(); commit(p.id); }, { w: 120 });
+  $('#aporteInput').value = fmt(p.aporte, 2);
+}
+
+function renderPort() {
+  const p = recalc(P(state.view));
+  crumbsRender(p);
+  $('#srcFile').textContent = 'upload/' + p0file(p.id);
+  $('#btnAddRow').style.display = editOn() ? '' : 'none';
+  p.sumPctOk = Math.abs(p.sumPct - 100) <= 0.01;
+
+  /* ---- KPIs clicáveis ---- */
+  const kpis = [
+    { ic: '💰', cls: 'blue', lb: 'Total investido', val: usd(p.totalInv), hint: p.nReal + ' ativo(s)', tip: 'Ver de onde vem o total (clique)', act: () => openModal('💰 Composição do total', mdBreakdown(p)) },
+    { ic: '🚀', cls: 'purple', lb: 'Total projetado', val: usd(p.totalProj), hint: 'investido + aporte', tip: 'Alvos calculados sobre o projetado (clique)', act: () => openModal('🚀 Total projetado', mdProj(p)) },
+    { ic: '➕', cls: 'green', lb: 'Aporte', val: usd(p.aporte), hint: 'simular no campo acima', tip: 'Clique para ir ao campo de simulação de aporte', act: () => { const b = $('#aporteBox'); b.scrollIntoView({ behavior: 'smooth', block: 'center' }); b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse'); $('#aporteInput').focus(); } },
+    { ic: '🎯', cls: 'warn', lb: 'Desalinhamento', val: pctf(p.desvio), hint: 'média |atual − alvo|', tip: 'Quanto a carteira atual difere do alvo (clique p/ ranking)', act: () => openModal('🎯 Ranking de desalinho', mdDesvio(p)) },
+    { ic: '🟢', cls: 'green', lb: 'Comprar', val: p.buyN + ' ativo(s)', hint: usd(p.buyV) + ' a aportar', tip: 'Linhas com "Aportar? SIM" (clique p/ lista)', act: () => openModal('🟢 Lista de compra (' + usd(p.buyV) + ')', mdBuy(p)) },
+    { ic: '🔴', cls: 'red', lb: 'Vender', val: p.sellN + ' ativo(s)', hint: usd(p.sellV) + ' a vender', tip: 'Linhas acima do alvo (clique p/ lista)', act: () => openModal('🔴 Lista de venda (' + usd(p.sellV) + ')', mdSell(p)) },
+    { ic: '⚖️', cls: p.sumPctOk ? 'blue' : 'warn', lb: 'Σ% alvo', val: pctf(p.sumPct), hint: Math.abs(p.sumPct - 100) <= 0.01 ? 'fechado em 100% ✔' : 'deve fechar em 100%', tip: 'Soma dos percentuais-alvo da tabela', act: () => { $('#tblFilter').focus(); toast('Confira os % na tabela abaixo'); document.querySelector('#page-port .tbl-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' }); } },
+    { ic: '📦', cls: '', lb: 'Ativos', val: p.nReal, hint: p.prazo, tip: 'Ir para a tabela de ativos', act: () => document.querySelector('#page-port .tbl-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' }) },
+  ];
+  $('#kpiGrid').innerHTML = kpis.map((k, i) => `
+    <div class="kpi ${k.cls}" role="button" tabindex="0" data-i="${i}" data-tip="${esc(k.tip)}">
+      <div class="top"><span class="ic">${k.ic}</span><span class="lb">${k.lb}</span></div>
+      <div class="val">${k.val}</div><div class="hint">${esc(k.hint)}</div>
+    </div>`).join('');
+  $$('#kpiGrid .kpi').forEach(el => {
+    const k = kpis[+el.dataset.i];
+    el.onclick = k.act;
+    el.onkeydown = e => { if (e.key === 'Enter') k.act(); };
+  });
+
+  /* ---- Donut de alocação ---- */
+  const byMode = new Map();
+  p.assets.forEach(a => {
+    if (!a.ticker || a.blank || a.valorAtual <= 0) return;
+    const key = state.donutMode === 'asset' ? a.ticker : (state.donutMode === 'geo' ? (a.geo || '—') : (a.fator || '—'));
+    byMode.set(key, (byMode.get(key) || 0) + a.valorAtual);
+  });
+  const centerLbl = state.donutMode === 'asset' ? 'posição atual' : (state.donutMode === 'geo' ? 'por geografia' : 'por fator');
+  drawDonut($('#pfDonut'), $('#pfLegend'), byMode, label => {
+    if (state.donutMode === 'asset') {
+      const idx = p.assets.findIndex(a => a.ticker === label);
+      if (idx >= 0) openDrawer(p.id, idx);
+    } else {
+      const list = p.assets.map((a, i) => ({ a, i })).filter(x => (state.donutMode === 'geo' ? (x.a.geo || '—') : (x.a.fator || '—')) === label);
+      openModal(state.donutMode === 'geo' ? '🗺️ ' + label : '🧩 ' + label, '<div class="md-list">' + list.map(x =>
+        `<button class="md-item" data-ai="${x.i}"><span class="n">${esc(x.a.ticker)}<small>${esc(x.a.geo)}</small></span><span class="v">${usd(x.a.valorAtual)}</span></button>`).join('') + '</div>');
+    }
+  }, centerLbl);
+
+  /* ---- Barras divergentes: valor faltante ---- */
+  const rows = p.assets.filter(a => !a.blank).slice().sort((x, y) => y.valorFalt - x.valorFalt);
+  const mx = Math.max(1e-9, ...rows.map(a => Math.abs(a.valorFalt)));
+  $('#pfBars').innerHTML = rows.map(a => {
+    const w = Math.abs(a.valorFalt) / mx * 47;
+    const pos = a.valorFalt >= 0;
+    return `
+    <div class="bar-row" data-ai="${p.assets.indexOf(a)}" data-tip="${esc(a.ticker)}: ${pos ? 'comprar' : 'vender'} ${usd(Math.abs(a.valorFalt))}">
+      <div class="nm"><b>${esc(a.ticker || '—')}</b> · ${fmt(a.pct, 0)}%</div>
+      <div class="bar-track"><div class="bar-axis"></div>
+        <div class="bar-fill ${pos ? 'pos' : 'neg'}" style="${pos ? 'left:50%' : 'right:50%'};width:${Math.max(w, 0.4)}%"></div>
+      </div>
+      <div class="vv ${pos ? 'pos' : 'neg'}">${pos ? '+' : '−'}${fmt(Math.abs(a.valorFalt))}</div>
+    </div>`;
+  }).join('');
+  $$('#pfBars .bar-row').forEach(r => r.onclick = () => openDrawer(p.id, +r.dataset.ai));
+
+  /* ---- % ideal vs % atual ---- */
+  $('#pfCmp').innerHTML = rows.map(a => {
+    const mxp = Math.max(a.pct, a.pctAtual, 1e-9);
+    return `
+    <div class="cmp-row" data-ai="${p.assets.indexOf(a)}" data-tip="Abrir ${esc(a.ticker)}">
+      <div class="cmp-top"><b>${esc(a.ticker || '—')}</b><span>alvo ${pctf(a.pct)} · atual ${pctf(a.pctAtual)}</span></div>
+      <div class="cmp-bar ideal"><i style="width:${(a.pct / mxp * 100).toFixed(1)}%"></i></div>
+      <div class="cmp-bar atual"><i style="width:${(a.pctAtual / mxp * 100).toFixed(1)}%"></i></div>
+    </div>`;
+  }).join('');
+  $$('#pfCmp .cmp-row').forEach(r => r.onclick = () => openDrawer(p.id, +r.dataset.ai));
+
+  /* ---- Resumo por fator ---- */
+  const byF = new Map();
+  p.assets.forEach(a => { if (!a.blank && a.ticker) { const f = a.fator || '—'; const o = byF.get(f) || { v: 0, i: 0 }; o.v += a.valorAtual; o.i += a.valorIdeal; byF.set(f, o); } });
+  const mxf = Math.max(1e-9, ...Array.from(byF.values()).map(o => Math.max(o.v, o.i)));
+  $('#pfFator').innerHTML = Array.from(byF.entries()).sort((x, y) => y[1].v - x[1].v).map(([f, o]) => `
+    <div class="cmp-row" data-tip="${esc(f)}: ${usd(o.v)} de ${usd(o.i)} alvo">
+      <div class="cmp-top"><b>${esc(f)}</b><span>${usd(o.v)} · alvo ${usd(o.i)}</span></div>
+      <div class="cmp-bar ideal"><i style="width:${(o.i / mxf * 100).toFixed(1)}%"></i></div>
+      <div class="cmp-bar atual"><i style="width:${(o.v / mxf * 100).toFixed(1)}%"></i></div>
+    </div>`).join('');
+
+  tableRender(p);
+  $('#editHint').innerHTML = editOn()
+    ? '💡 Modo editar <b>ativo</b>: "＋ Adicionar ativo" busca <b>nome, tipo e cotação</b> do ticker no Yahoo Finance; editar um ticker também refaz a busca. Aceita vírgula ou ponto. Preços acompanham o Yahoo ao vivo; editar um preço congela a cotação daquele ativo (botão "↺ Usar cotação ao vivo" no painel devolve). Aporte, %, quantidades e preços recalculam tudo na hora e ficam salvos neste navegador.'
+    : '🔒 Somente leitura: ative o <b>modo editar</b> na barra lateral para alterar células. Gráficos e KPIs continuam clicáveis.';
+}
+
+/* ---------- modais de KPI ---------- */
+function mdBreakdown(p) {
+  const rows = p.assets.filter(a => !a.blank).slice().sort((x, y) => y.valorAtual - x.valorAtual);
+  return '<div class="md-list">' + rows.map(a => `<button class="md-item" data-ai="${p.assets.indexOf(a)}"><span class="n">${esc(a.ticker)}<small>${esc(a.geo)} · ${pctf(a.pctAtual)} da carteira</small></span><span class="v">${usd(a.valorAtual)}</span></button>`).join('') + '</div>';
+}
+function mdProj(p) {
+  return `<div class="md-list">
+    <div class="md-item" style="cursor:default"><span class="n">Posição atual<small>soma dos valores dos ativos</small></span><span class="v">${usd(p.totalInv)}</span></div>
+    <div class="md-item" style="cursor:default"><span class="n">Aporte simulado<small>edite no topo da página</small></span><span class="v">${usd(p.aporte)}</span></div>
+    <div class="md-item" style="cursor:default"><span class="n"><b>Total projetado</b><small>base dos valores ideais</small></span><span class="v">${usd(p.totalProj)}</span></div>
+  </div>`;
+}
+function mdDesvio(p) {
+  const rows = p.assets.filter(a => !a.blank).slice().sort((x, y) => Math.abs(y.pctAtual - y.pct) - Math.abs(x.pctAtual - x.pct));
+  return '<div class="md-list">' + rows.map(a => {
+    const d = a.pctAtual - a.pct;
+    return `<button class="md-item" data-ai="${p.assets.indexOf(a)}"><span class="n">${esc(a.ticker)}<small>atual ${pctf(a.pctAtual)} · alvo ${pctf(a.pct)}</small></span><span class="v ${d > 0 ? 'neg' : 'pos'}">${d > 0 ? '+' : ''}${fmt(d)} pts</span></button>`;
+  }).join('') + '</div>';
+}
+function mdBuy(p) { return mdListFalt(p, a => a.valorFalt > 0.0049, true); }
+function mdSell(p) { return mdListFalt(p, a => a.valorFalt < -0.0049, false); }
+function mdListFalt(p, pred, pos) {
+  const rows = p.assets.map((a, i) => ({ a, i })).filter(x => !x.a.blank && pred(x.a));
+  return rows.length ? '<div class="md-list">' + rows.map(x => `<button class="md-item" data-ai="${x.i}"><span class="n">${esc(x.a.ticker)}<small>falta ${fmt(Math.abs(x.a.qtdFalt), 4)} cota(s) · ${esc(x.a.fator)}</small></span><span class="v ${pos ? 'pos' : 'neg'}">${pos ? '+' : '−'}${usd(Math.abs(x.a.valorFalt))}</span></button>`).join('') + '</div>' : '<p class="sub">Nada aqui — carteira equilibrada nesse critério.</p>';
+}
+
+/* ================= DONUT (SVG puro, clicável) ================= */
+function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function arcPath(cx, cy, r0, r1, a0, a1) {
+  const large = (a1 - a0) > Math.PI ? 1 : 0;
+  const x0 = cx + r1 * Math.cos(a0), y0 = cy + r1 * Math.sin(a0);
+  const x1 = cx + r1 * Math.cos(a1), y1 = cy + r1 * Math.sin(a1);
+  const x2 = cx + r0 * Math.cos(a1), y2 = cy + r0 * Math.sin(a1);
+  const x3 = cx + r0 * Math.cos(a0), y3 = cy + r0 * Math.sin(a0);
+  return `M${x0.toFixed(2)} ${y0.toFixed(2)} A${r1} ${r1} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} L${x2.toFixed(2)} ${y2.toFixed(2)} A${r0} ${r0} 0 ${large} 0 ${x3.toFixed(2)} ${y3.toFixed(2)} Z`;
+}
+function drawDonut(box, legend, map, onClick, centerLabel, fmtVal) {
+  const fmtV = fmtVal || usd;
+  const entries = Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((s, e) => s + e[1], 0);
+  const size = 230, cx = size / 2, cy = size / 2, r1 = 112, r0 = 74;
+  let segs = '', lgs = '';
+  if (total <= 0) {
+    segs = `<circle cx="${cx}" cy="${cy}" r="${(r1 + r0) / 2}" fill="none" stroke="${cssVar('--border')}" stroke-width="${r1 - r0}"/>`;
+  } else {
+    let ang = -Math.PI / 2;
+    entries.forEach(([k, v], i) => {
+      const frac = v / total;
+      let sweep = frac * Math.PI * 2;
+      if (sweep >= Math.PI * 2 - 1e-6) sweep = Math.PI * 2; // um só segmento
+      const col = cssVar(`--c${i % 11}`);
+      const parts = sweep >= Math.PI * 2 ? [[0, Math.PI], [Math.PI, Math.PI * 2]] : [[0, sweep]];
+      parts.forEach(([s0, s1]) => {
+        segs += `<path class="seg-piece" d="${arcPath(cx, cy, r0, r1, ang + s0, ang + s1)}" fill="${col}" stroke="${cssVar('--card')}" stroke-width="2" data-tip="${esc(k)}: ${fmtV(v)} (${pctf(frac * 100, 1)})"><title>${esc(k)}</title></path>`;
+      });
+      lgs += `<button class="lg" data-k="${esc(k)}"><span class="dot" style="background:${col}"></span><span class="n">${esc(k)}</span><span class="v">${fmtV(v)}<br><small style="color:var(--muted)">${pctf(frac * 100, 1)}</small></span></button>`;
+      ang += sweep;
+    });
+  }
+  box.innerHTML = `
+    <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Donut de alocação">${segs}</svg>
+    <div class="donut-center"><b>${total > 0 ? fmtV(total) : '—'}</b><span>${esc(centerLabel || '')}</span></div>`;
+  legend.innerHTML = lgs || '<p class="sub">Sem posições para exibir.</p>';
+  Array.from(box.querySelectorAll('.seg-piece')).forEach(el => el.onclick = () => { const t = el.querySelector('title'); if (t) onClick(t.textContent); });
+  Array.from(legend.querySelectorAll('.lg')).forEach(el => el.onclick = () => onClick(el.dataset.k));
+}
+
+/* ================= TABELA EDITÁVEL ================= */
+const COLS = [
+  { k: 'idx', t: '#', nosort: true, edit: false },
+  { k: 'ticker', t: 'Ticker', edit: 'text' },
+  { k: 'geo', t: 'Geografia', edit: 'text' },
+  { k: 'fator', t: 'Fator', edit: 'text' },
+  { k: 'pct', t: '% Alvo', edit: 'num' },
+  { k: 'qtd', t: 'Qtd. Atual', edit: 'num' },
+  { k: 'precoLocal', t: 'Preço Local', edit: 'num' },
+  { k: 'preco', t: 'Preço US$', edit: 'num' },
+  { k: 'ret1y', t: '12 meses', edit: false },
+  { k: 'pos52', t: 'Faixa 52s', edit: false },
+  { k: 'pctAtual', t: '% Atual', edit: false },
+  { k: 'valorAtual', t: 'Valor Atual', edit: false },
+  { k: 'valorIdeal', t: 'Valor Ideal', edit: false },
+  { k: 'qtdIdeal', t: 'Qtd. Ideal', edit: false },
+  { k: 'valorFalt', t: 'Faltante US$', edit: false },
+  { k: 'qtdFalt', t: 'Qtd. Faltante', edit: false },
+  { k: 'aportar', t: 'Aportar?', nosort: true, edit: false },
+  { k: 'del', t: '', nosort: true, edit: false },
+];
+
+function normTxt(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+function tableRender(p) {
+  const tbl = $('#pfTable');
+  const f = normTxt(state.filter);
+  let list = p.assets.map((a, i) => ({ a, i })).filter(x => {
+    if (f && !normTxt([x.a.ticker, x.a.geo, x.a.fator].join(' ')).includes(f)) return false;
+    return true;
+  });
+  if (state.sort) {
+    const { k, dir } = state.sort;
+    list.sort((x, y) => {
+      let vx = x.a[k], vy = y.a[k];
+      if (k === 'aportar') { vx = x.a.qtdFalt > 0.0049 ? 1 : 0; vy = y.a.qtdFalt > 0.0049 ? 1 : 0; }
+      if (typeof vx === 'string') return vx.localeCompare(vy) * dir;
+      return (vx - vy) * dir;
+    });
+  }
+  const shown = list.length, total = p.assets.length;
+  $('#tblInfo').textContent = `${shown} de ${total} linha(s) · Σ% alvo = ${pctf(p.sumPct)}`;
+
+  const ths = COLS.map(c => `<th class="${c.nosort ? 'nosort' : ''}" data-k="${c.k}" data-tip="${c.t === 'Faltante US$' ? 'Positivo = comprar · Negativo = vender' : ''}">${c.t}${state.sort && state.sort.k === c.k ? (state.sort.dir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('');
+  const body = list.map(x => {
+    const a = x.a, i = x.i;
+    const td = (c) => {
+      if (c.k === 'idx') return `<td class="num">${i + 1}</td>`;
+      if (c.k === 'del') return `<td>${editOn() && !a.blank ? `<button class="del-btn" data-del="${i}" title="Excluir linha">🗑</button>` : ''}</td>`;
+      if (c.k === 'ticker') {
+        const q = quoteDot(a);
+        return `<td data-cell="1" data-i="${i}" data-k="ticker" style="text-align:left"><span class="qdot ${q.cls}" data-tip="${esc(q.tip)}"></span>${esc(a.ticker || '')}${a.nome ? `<span class="tk-sub" title="${esc(a.nome)}">${esc(a.nome)}${a.tipo ? ' · ' + esc(a.tipo) : ''}</span>` : ''}</td>`;
+      }
+      if (c.k === 'ret1y') return a.ret1y == null ? '<td class="num" style="color:var(--muted)">—</td>' : `<td class="num ${a.ret1y >= 0 ? 'up' : 'dn'}">${a.ret1y >= 0 ? '+' : ''}${fmt(a.ret1y)}%</td>`;
+      if (c.k === 'pos52') return a.pos52 == null ? '<td class="num" style="color:var(--muted)">—</td>' : `<td class="num" data-tip="Posição do preço entre a mínima e a máxima de 52 semanas">${Math.round(a.pos52)}%<span class="pctbar"><i style="width:${a.pos52.toFixed(0)}%"></i></span></td>`;
+      if (c.k === 'pctAtual') return `<td class="num">${pctf(a.pctAtual)}<span class="pctbar"><i style="width:${Math.min(100, a.pctAtual).toFixed(0)}%"></i></span></td>`;
+      if (c.k === 'aportar') {
+        const b = a.blank ? 'void' : (a.qtdFalt > 0.0049 && a.pct > 0 ? 'sim' : 'nao');
+        return `<td><span class="badge ${b}">${a.blank ? '—' : (b === 'sim' ? 'SIM' : 'NÃO')}</span></td>`;
+      }
+      if (['valorFalt', 'qtdFalt'].includes(c.k)) {
+        const cls = a[c.k] > 0.0049 ? 'pos' : (a[c.k] < -0.0049 ? 'neg' : '');
+        const d = c.k === 'valorFalt' ? 2 : 4;
+        return `<td class="num ${cls}" data-cell="1" data-i="${i}" data-k="${c.k}">${fmt(a[c.k], d)}</td>`;
+      }
+      if (c.edit) {
+        const effK = c.k === 'preco' ? 'precoEff' : (c.k === 'precoLocal' ? 'precoLocalEff' : c.k);
+        const v = c.edit === 'num' ? fmt(a[effK], c.k === 'pct' ? 2 : (c.k === 'qtd' ? 4 : 2)) : a[c.k];
+        return `<td data-cell="1" data-i="${i}" data-k="${c.k}" class="${c.edit === 'text' ? 'tk2' : 'num'}">${esc(v)}</td>`;
+      }
+      return `<td class="num">${fmt(a[c.k] || 0, c.k === 'qtdIdeal' ? 4 : 2)}</td>`;
+    };
+    return `<tr ${a.blank ? 'style="opacity:.62"' : ''}>${COLS.map(td).join('')}</tr>`;
+  }).join('');
+
+  const faltTotal = p.assets.reduce((s, a) => s + a.valorFalt, 0);
+  const tot = `<tr class="total-tr"><td>Σ</td><td style="text-align:left">Total Carteira</td><td colspan="3" style="text-align:right">${pctf(p.sumPct)}</td><td colspan="4"></td><td class="num">${usd(p.totalInv)}</td><td class="num">${usd(p.totalProj)}</td><td></td><td class="num">${usd(faltTotal)}</td><td></td><td></td><td></td></tr>`;
+
+  tbl.innerHTML = `<thead><tr>${ths}</tr></thead><tbody>${body}${tot}</tbody>`;
+
+  // edição de células
+  if (editOn()) {
+    $$('#pfTable td[data-cell]').forEach(tdEl => {
+      const i = +tdEl.dataset.i, k = tdEl.dataset.k;
+      const col = COLS.find(c => c.k === k);
+      cellEdit(tdEl, () => {
+        const a = p.assets[i];
+        const effK = k === 'preco' ? 'precoEff' : (k === 'precoLocal' ? 'precoLocalEff' : k);
+        return col.edit === 'num' ? fmt(a[effK], k === 'qtd' || k === 'qtdFalt' ? 4 : 2) : a[k];
+      },
+        v => {
+          const a = p.assets[i];
+          if (col.edit === 'num') a[k] = parseNum(v);
+          else a[k] = String(v).trim().toUpperCase() === '' && k === 'ticker' ? '' : String(v).trim();
+          if (k === 'ticker' && a[k] && a.blank) a.blank = false;
+          if (k === 'pct') a[k] = Math.max(0, a[k]);
+          if (k === 'preco' || k === 'precoLocal') a.manualPrice = true; // congela a cotação p/ este ativo
+          commit(p.id); navRender();
+          if (k === 'ticker' && a[k]) lookupAndApply(a, p.id); // nome, tipo e cotação automáticos
+        }, { text: col.edit === 'text' });
+    });
+    $$('#pfTable [data-del]').forEach(b => b.onclick = e => {
+      e.stopPropagation();
+      const i = +b.dataset.del;
+      p.assets.splice(i, 1);
+      commit(p.id); navRender(); render(); toast('Ativo excluído — "↺ Restaurar original" desfaz');
+    });
+  }
+
+  // ordenação
+  $$('#pfTable th[data-k]').forEach(thEl => {
+    if (thEl.classList.contains('nosort')) return;
+    thEl.onclick = () => {
+      const k = thEl.dataset.k;
+      if (state.sort && state.sort.k === k) state.sort.dir *= -1;
+      else state.sort = { k, dir: 1 };
+      render();
+    };
+  });
+}
+
+$('#tblFilter').addEventListener('input', e => { state.filter = e.target.value; const p = recalc(P(state.view)); if (state.view !== 'overview') tableRender(p); });
+$('#btnAddRow').onclick = () => {
+  if (!editOn()) { toast('Ative o modo editar para adicionar'); return; }
+  openModal('➕ Adicionar ativo', `
+    <p class="sub" style="margin:0 0 10px">Digite o <b>ticker</b> (padrão Yahoo Finance) e o sistema busca automaticamente o <b>nome</b>, o <b>tipo</b> e a <b>cotação atual</b>.</p>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input id="addSym" placeholder="Ex.: NDIV11.SA · VALU.L · IVVB11.SA · PETR4.SA" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text)">
+      <button class="btn primary" id="addGo">🔎 Buscar</button>
+    </div>
+    <p class="sub" id="addOut" style="margin:0">Sufixos: <b>.SA</b> = Brasil (ETF/FII/ação) · <b>.L</b> = Londres · <b>.N</b>/<b>.O</b> = EUA · a moeda é detectada sozinha e convertida para US$.</p>`);
+  const inp = $('#addSym');
+  inp.focus();
+  const go = async () => {
+    const sym = inp.value.trim().toUpperCase();
+    if (!sym) { inp.focus(); return; }
+    $('#addGo').disabled = true; inp.disabled = true;
+    $('#addOut').textContent = '🔎 Buscando ' + sym + ' no Yahoo Finance…';
+    try {
+      const L = await lookupSymbol(sym);
+      const p = P(state.view);
+      const a = { ticker: L.symbol, nome: L.nome, tipo: L.tipo, geo: '', fator: '', pct: 0, qtd: 0, precoLocal: L.local, preco: L.usd, manualPrice: false };
+      applyLookup(a, L); // preenche geografia se vazia e registra no cache ao vivo
+      p.assets.push(a);
+      commit(state.view);
+      closeModal();
+      navRender(); render();
+      openDrawer(state.view, p.assets.length - 1);
+      toast(`✅ ${L.nome} (${L.tipo}) adicionado — defina o % alvo`);
+    } catch (e) {
+      $('#addGo').disabled = false; inp.disabled = false; inp.focus();
+      $('#addOut').innerHTML = `⚠️ <b>${esc(sym)}</b> não encontrado no Yahoo Finance (confira o sufixo: .SA Brasil, .L Londres). <button class="btn small" id="addManual" style="margin-left:6px">Adicionar manualmente</button>`;
+      $('#addManual').onclick = () => {
+        const p = P(state.view);
+        p.assets.push({ ticker: sym, nome: '', tipo: '', geo: '', fator: '', pct: 0, qtd: 0, precoLocal: 0, preco: 0, manualPrice: true });
+        commit(state.view);
+        closeModal(); navRender(); render();
+        openDrawer(state.view, p.assets.length - 1);
+        toast('Ativo criado — preencha os dados no painel');
+      };
+    }
+  };
+  $('#addGo').onclick = go;
+  inp.onkeydown = e => { if (e.key === 'Enter') go(); };
+};
+$('#btnCsv').onclick = () => {
+  const p = recalc(P(state.view));
+  const sep = ';';
+  const head = ['#', 'Ticker', 'Nome', 'Tipo', 'Geografia', 'Fator', '% Alvo', 'Qtd Atual', 'Preço Local', 'Preço US$', '% Atual', 'Valor Atual', 'Valor Ideal', 'Qtd Ideal', 'Faltante US$', 'Qtd Faltante', 'Aportar?'].join(sep);
+  const lines = p.assets.map((a, i) => [i + 1, a.ticker, a.nome || '', a.tipo || '', a.geo, a.fator, fmt(a.pct), fmt(a.qtd, 4), fmt(a.precoLocalEff), fmt(a.precoEff), fmt(a.pctAtual), fmt(a.valorAtual), fmt(a.valorIdeal), fmt(a.qtdIdeal, 4), fmt(a.valorFalt), fmt(a.qtdFalt, 4), a.blank ? '' : (a.qtdFalt > 0.0049 && a.pct > 0 ? 'SIM' : 'NÃO')].join(sep));
+  lines.push(['', 'Total Carteira', '', '', '', '', fmt(p.sumPct), '', '', '', '100,00', fmt(p.totalInv), fmt(p.totalProj), '', fmt(p.assets.reduce((s, a) => s + a.valorFalt, 0)), '', ''].join(sep));
+  downloadFile((p.carteira || 'carteira').replace(/\s+/g, '_') + '.csv', '\ufeff' + head + '\n' + lines.join('\n'), 'text/csv;charset=utf-8');
+  toast('CSV exportado');
+};
+$('#btnRestore').onclick = () => mdConfirm('↺ Restaurar original', `Descartar TODAS as edições de <b>${esc(p0file(state.view))}</b> e voltar aos dados do arquivo enviado?`, () => {
+  delete store.edits[state.view]; delete work[state.view];
+  saveStore(); navRender(); render(); toast('Carteira restaurada do arquivo original');
+});
+
+/* ================= DRAWER (editor de ativo) ================= */
+function openDrawer(pid, ai) {
+  state.drawer = { pid, ai };
+  drawerRender();
+  $('#drawer').classList.add('open');
+  $('#drawer').setAttribute('aria-hidden', 'false');
+}
+function closeDrawer() { $('#drawer').classList.remove('open'); $('#drawer').setAttribute('aria-hidden', 'true'); state.drawer = null; }
+$('#drClose').onclick = closeDrawer;
+
+function drawerRender() {
+  if (!state.drawer) return;
+  const { pid, ai } = state.drawer;
+  const p = recalc(P(pid));
+  if (ai >= p.assets.length) ai = p.assets.length - 1;
+  const a = p.assets[ai];
+  if (!a) return;
+  $('#drTicker').textContent = a.ticker || '(sem ticker)';
+  $('#drSub').textContent = `${a.nome ? a.nome + ' · ' : ''}${a.tipo ? a.tipo + ' · ' : ''}${p.carteira} · linha ${ai + 1} · ${p0file(pid)}`;
+  const q = quoteFor(a.ticker);
+  const man = !!a.manualPrice;
+  const varHtml = q && q.varPct != null ? `<span class="var ${q.varPct >= 0 ? 'pos' : 'neg'}">${q.varPct >= 0 ? '▲ +' : '▼ '}${fmt(q.varPct)}% hoje</span>` : '';
+  const liveBox = man
+    ? `<div class="dr-live manual"><span>✏️ <b>Preço manual</b> — este ativo ignora a cotação ao vivo.</span><button class="btn small" id="drUseLive">↺ Usar cotação ao vivo</button></div>`
+    : (q
+      ? `<div class="dr-live"><span>🟢 <b>Ao vivo · Yahoo Finance</b> · ${new Date(q.at).toLocaleTimeString('pt-BR')}</span><span>${fmt(q.local)} ${q.currency} → <b>${usd(q.usd)}</b> · ${varHtml}</span></div>`
+      : `<div class="dr-live"><span>⚠️ Sem cotação ao vivo para <b>${esc(a.ticker || '—')}</b> — usando o preço do arquivo. Clique em "🔄 Preços ao vivo".</span></div>`);
+  const F = [
+    { k: 'ticker', lb: 'Ticker', type: 'text' },
+    { k: 'nome', lb: 'Nome', type: 'text' },
+    { k: 'tipo', lb: 'Tipo', type: 'text' },
+    { k: 'geo', lb: 'Geografia', type: 'text' },
+    { k: 'fator', lb: 'Fator', type: 'text' },
+    { k: 'pct', lb: '% Alvo', type: 'num' },
+    { k: 'qtd', lb: 'Qtd. Atual', type: 'num' },
+    { k: 'precoLocal', lb: 'Preço Local', type: 'num' },
+    { k: 'preco', lb: 'Preço US$', type: 'num' },
+  ];
+  $('#drBody').innerHTML = `
+    <div class="dr-kpis">
+      <div class="dr-kpi"><span>Valor atual</span><b>${usd(a.valorAtual)}</b></div>
+      <div class="dr-kpi"><span>% atual</span><b>${pctf(a.pctAtual)}</b></div>
+      <div class="dr-kpi"><span>Valor ideal</span><b>${usd(a.valorIdeal)}</b></div>
+      <div class="dr-kpi"><span>Faltante</span><b style="color:${a.valorFalt > 0.0049 ? 'var(--green)' : a.valorFalt < -0.0049 ? 'var(--red)' : 'inherit'}">${usd(a.valorFalt)}</b></div>
+      <div class="dr-kpi"><span>Qtd. ideal</span><b>${fmt(a.qtdIdeal, 4)}</b></div>
+      <div class="dr-kpi"><span>Aportar?</span><b>${a.blank ? '—' : (a.qtdFalt > 0.0049 && a.pct > 0 ? '✅ SIM' : '⛔ NÃO')}</b></div>
+    </div>
+    ${liveBox}
+    <div class="fld">
+      ${F.map(f => {
+        const effK = f.k === 'preco' ? 'precoEff' : (f.k === 'precoLocal' ? 'precoLocalEff' : f.k);
+        const val = f.type === 'num' ? fmt(a[effK], f.k === 'qtd' ? 4 : 2) : (a[f.k] || '');
+        return `<div class="f"><label>${f.lb}</label><input data-k="${f.k}" data-type="${f.type}" ${editOn() ? '' : 'disabled'} value="${esc(val)}" inputmode="${f.type === 'num' ? 'decimal' : 'text'}"></div>`;
+      }).join('')}
+    </div>
+    ${editOn() ? '' : '<p class="sub">🔒 Somente leitura — ative o <b>modo editar</b> na barra lateral para alterar.</p>'}
+    <div class="note" style="margin-top:0">Os valores derivados (% atual, ideal, faltante) recalculam automaticamente: Valor Ideal = % alvo × Total Projetado; Qtd. Ideal = Valor Ideal ÷ Preço US$.</div>`;
+  $$('#drBody input[data-k]').forEach(inp => {
+    inp.onchange = () => {
+      const k = inp.dataset.k;
+      a[k] = inp.dataset.type === 'num' ? parseNum(inp.value) : inp.value.trim();
+      if (k === 'pct') a[k] = Math.max(0, a[k]);
+      if (k === 'ticker') a.blank = !a[k];
+      if (k === 'preco' || k === 'precoLocal') a.manualPrice = true;
+      commit(pid); navRender(); renderPort();
+      drawerRender(); // atualiza KPIs do drawer
+      if (k === 'ticker' && a[k]) lookupAndApply(a, pid, { redrawDrawer: true }); // nome, tipo e cotação automáticos
+      else toast('Salvo ✔');
+    };
+  });
+  const ul = $('#drUseLive');
+  if (ul) ul.onclick = () => {
+    a.manualPrice = false;
+    commit(pid);
+    if (!quoteFor(a.ticker)) refreshQuotes(true);
+    renderPort(); drawerRender();
+    toast('Preço voltou a seguir a cotação ao vivo');
+  };
+  $('#drPrev').onclick = () => { state.drawer.ai = (ai - 1 + p.assets.length) % p.assets.length; drawerRender(); };
+  $('#drNext').onclick = () => { state.drawer.ai = (ai + 1) % p.assets.length; drawerRender(); };
+  $('#drDel').onclick = () => {
+    if (!editOn()) { toast('Ative o modo editar para excluir'); return; }
+    mdConfirm('🗑 Excluir ativo', `Remover <b>${esc(a.ticker || 'linha sem ticker')}</b> de ${esc(p.carteira)}?`, () => {
+      p.assets.splice(ai, 1);
+      commit(pid); navRender(); render(); closeDrawer();
+      toast('Ativo excluído — "↺ Restaurar original" desfaz');
+    });
+  };
+}
+
+/* ================= IMPORT / EXPORT / RESET ================= */
+function downloadFile(name, content, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+$('#btnExport').onclick = () => {
+  const data = { exportadoEm: new Date().toLocaleString('pt-BR'), fonte: 'Dashboard Enxuta 3.0 USD', portfolios: RAW.map(p0 => { const p = recalc(P(p0.id)); return { id: p.id, arquivo: p.file, carteira: p.carteira, versao: p.versao, prazo: p.prazo, aporte: p.aporte, assets: p.assets }; }) };
+  downloadFile('enxuta3-dashboard.json', JSON.stringify(data, null, 1), 'application/json');
+  toast('JSON exportado');
+};
+$('#btnImport').onclick = () => $('#fileImport').click();
+$('#fileImport').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const j = JSON.parse(rd.result);
+      const ps = Array.isArray(j) ? j : (j.portfolios || []);
+      let n = 0;
+      ps.forEach(np => {
+        const raw = RAW.find(r => r.id === np.id || r.file === np.arquivo || r.file === np.file);
+        if (!raw || !Array.isArray(np.assets)) return;
+        store.edits[raw.id] = { id: raw.id, file: raw.file, carteira: np.carteira ?? raw.carteira, versao: np.versao ?? raw.versao, prazo: np.prazo ?? raw.prazo, aporte: parseNum(np.aporte), assets: np.assets.map(a => ({ ticker: a.ticker || '', nome: a.nome || '', tipo: a.tipo || '', geo: a.geo || '', fator: a.fator || '', pct: parseNum(a.pct), qtd: parseNum(a.qtd), precoLocal: parseNum(a.precoLocal ?? a.preco), preco: parseNum(a.preco) })) };
+        delete work[raw.id];
+        n++;
+      });
+      saveStore(); navRender(); render();
+      toast(n ? `Importado: ${n} carteira(s) ✔` : 'Nenhuma carteira reconhecida no arquivo');
+    } catch (err) { toast('JSON inválido: ' + err.message); }
+  };
+  rd.readAsText(f);
+  e.target.value = '';
+};
+$('#btnResetAll').onclick = () => mdConfirm('↺ Restaurar tudo', 'Descartar TODAS as edições de TODAS as carteiras e voltar aos 8 arquivos originais?', () => {
+  store.edits = {}; Object.keys(work).forEach(k => delete work[k]);
+  saveStore(); navRender(); render(); toast('Tudo restaurado aos originais');
+});
+
+/* confirmação em modal */
+function mdConfirm(title, msgHtml, onOk) {
+  openModal(title, `<p style="margin:4px 0 14px">${msgHtml}</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" id="cfNo">Cancelar</button>
+      <button class="btn danger" id="cfYes">Confirmar</button>
+    </div>`);
+  $('#cfNo').onclick = closeModal;
+  $('#cfYes').onclick = () => { closeModal(); onOk(); };
+}
+
+/* ================= COTAÇÕES AO VIVO (Yahoo Finance) ================= */
+const FX_SYMBOLS = ['USDBRL=X', 'GBPUSD=X'];
+function quoteFor(ticker) {
+  const k = String(ticker || '').toUpperCase();
+  return (k && store.qc) ? store.qc[k] : null;
+}
+function effPrice(a) {
+  if (a.manualPrice) return parseNum(a.preco);
+  const q = quoteFor(a.ticker);
+  return q ? q.usd : parseNum(a.preco);
+}
+function localPrice(a) {
+  if (a.manualPrice) return parseNum(a.precoLocal);
+  const q = quoteFor(a.ticker);
+  return q ? q.local : parseNum(a.precoLocal);
+}
+function quoteDot(a) {
+  if (a.manualPrice) return { cls: 'muted', tip: '✏️ Preço definido manualmente — este ativo ignora a cotação ao vivo' };
+  const q = quoteFor(a.ticker);
+  if (!q) return { cls: 'red', tip: '⚠️ Sem cotação ao vivo — usando o preço do arquivo enviado' };
+  const age = (Date.now() - q.at) / 60000;
+  const vp = q.varPct != null ? ` · ${q.varPct >= 0 ? '+' : ''}${fmt(q.varPct)}% hoje` : '';
+  return { cls: age < 20 ? 'green' : 'warn', tip: `🟢 Cotação Yahoo Finance: ${fmt(q.local)} ${q.currency} = ${usd(q.usd)}${vp} · às ${new Date(q.at).toLocaleTimeString('pt-BR')}` };
+}
+function allSymbols() {
+  const s = new Set();
+  RAW.forEach(p0 => P(p0.id).assets.forEach(a => { if (a.ticker && !a.blank) s.add(a.ticker.toUpperCase()); }));
+  FX_SYMBOLS.forEach(f => s.add(f));
+  return Array.from(s);
+}
+function currencyOf(sym) {
+  if (/\.SA$/i.test(sym)) return 'BRL'; // ativos da B3 são cotados em real
+  return 'USD';                          // os ETFs .L destas carteiras são cotados em USD no Yahoo (verificado)
+}
+function toUSD(price, cur, fx) {
+  cur = (cur || 'USD').toUpperCase();
+  if (cur === 'BRL') { const r = fx.USDBRL || 5.75; return { local: price, usd: price / r }; }
+  if (cur === 'GBX') { const r = fx.GBPUSD || 1.32; return { local: price / 100, usd: price / 100 * r }; }
+  if (cur === 'GBP') { const r = fx.GBPUSD || 1.32; return { local: price, usd: price * r }; }
+  return { local: price, usd: price };
+}
+const sleepMs = ms => new Promise(r => setTimeout(r, ms));
+// proxies CORS com fallback (o Yahoo não libera CORS direto para navegadores)
+const PROXIES = [
+  u => u, // direto (funciona se a rede/extensão permitir)
+  u => 'https://api.cors.lol/?url=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => 'https://test.cors.workers.dev/?' + u,
+];
+let stickyQ = 1, quotesBusy = false;
+function fetchTimeout(url, ms) {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), ms);
+  return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(t));
+}
+async function fetchVia(i, url) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const r = await fetchTimeout(PROXIES[i](url), 7000);
+    if (r.status === 429 && attempt === 0) { await sleepMs(2500); continue; } // rate limit: 1 retry
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    stickyQ = i; // lembra a fonte que funcionou
+    return j;
+  }
+  throw new Error('HTTP 429 repetido');
+}
+async function proxyJSON(url) {
+  // direto só se já funcionou antes (navegadores normalmente bloqueiam CORS do Yahoo)
+  if (stickyQ === 0) { try { return await fetchVia(0, url); } catch (e) {} }
+  // ordem das fontes: começa pela que funcionou por último
+  const rest = [stickyQ === 0 ? 1 : stickyQ];
+  for (let i = 1; i < PROXIES.length; i++) {
+    const j = (rest[0] + i - 1) % (PROXIES.length - 1) + 1;
+    if (!rest.includes(j)) rest.push(j);
+  }
+  // corrida escalonada: cada fonte entra 700ms depois da anterior (evita rajada/429)
+  const racers = rest.map((i, n) => sleepMs(n * 700).then(() => fetchVia(i, url)));
+  try {
+    return await Promise.any(racers);
+  } catch (e) {
+    // 2ª e última rodada após 4s de descanso
+    await sleepMs(4000);
+    const racers2 = rest.map((i, n) => sleepMs(n * 700).then(() => fetchVia(i, url)));
+    try { return await Promise.any(racers2); }
+    catch (e2) { throw new Error('todas as fontes de cotação falharam'); }
+  }
+}
+function sparkPrice(d) {
+  if (!d) return null;
+  if (d.fulldayPrice != null) return d.fulldayPrice;
+  if (Array.isArray(d.close) && d.close.length) return d.close[d.close.length - 1];
+  return null;
+}
+async function refreshQuotes(silent) {
+  if (quotesBusy) return;
+  quotesBusy = true;
+  $('#btnQuotes').classList.add('busy');
+  statusRender('busy');
+  try {
+    const syms = allSymbols();
+    const url = 'https://query1.finance.yahoo.com/v8/finance/spark?symbols=' + encodeURIComponent(syms.join(',')) + '&range=1d&interval=1d';
+    let raw = null;
+    try { raw = await proxyJSON(url); }
+    catch (e) {
+      statusRender('erro');
+      if (!silent) toast('⚠️ Não deu para buscar cotações agora — usando os preços dos arquivos');
+      return;
+    }
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) { statusRender('erro'); if (!silent) toast('Resposta inválida da fonte de cotações'); return; }
+    const fxOld = (store.qc && store.qc.fx) || {};
+    const fx = {
+      USDBRL: sparkPrice(raw['USDBRL=X']) ?? fxOld.USDBRL ?? 5.75,
+      GBPUSD: sparkPrice(raw['GBPUSD=X']) ?? fxOld.GBPUSD ?? 1.32,
+    };
+    const cache = Object.assign({}, store.qc || {}); // preserva símbolos que não vieram na lista
+    cache.fx = Object.assign({}, fx, { at: Date.now() });
+    let ok = 0; const miss = [];
+    syms.forEach(sym => {
+      if (FX_SYMBOLS.includes(sym)) return;
+      const price = sparkPrice(raw[sym]);
+      if (price == null) { miss.push(sym); return; }
+      const cur = currencyOf(sym);
+      const conv = toUSD(price, cur, fx);
+      const prev = raw[sym].chartPreviousClose ?? raw[sym].previousClose ?? null;
+      cache[sym] = {
+        price, currency: cur, local: conv.local, usd: conv.usd,
+        varPct: raw[sym].fulldayChangePercent != null ? raw[sym].fulldayChangePercent : (prev ? (price / prev - 1) * 100 : null),
+        at: Date.now(),
+      };
+      ok++;
+    });
+    cache.ok = ok; cache.miss = miss; cache.at = Date.now();
+    store.qc = cache; saveStore();
+    statusRender();
+    navRender(); render();
+    if (!silent) toast(ok ? `🔄 Cotações atualizadas: ${ok}/${syms.length - FX_SYMBOLS.length} ativos` : '⚠️ A fonte não devolveu cotações');
+  } finally {
+    quotesBusy = false;
+    $('#btnQuotes').classList.remove('busy');
+  }
+}
+function statusRender(mode) {
+  const el = $('#quoteStatus');
+  if (!el) return;
+  const qc = store.qc;
+  if (mode === 'busy') { el.innerHTML = '⏳ <b>atualizando…</b>'; el.dataset.tip = 'Buscando preços atuais no Yahoo Finance…'; return; }
+  const total = allSymbols().filter(s => !FX_SYMBOLS.includes(s)).length;
+  if (mode === 'erro' || !qc || !qc.at) {
+    el.innerHTML = `<span class="qdot red"></span> <b>planilha</b>`;
+    el.dataset.tip = 'Sem cotação ao vivo agora — os cálculos usam os preços dos arquivos enviados. Clique em "🔄 Preços ao vivo".';
+    return;
+  }
+  const ok = qc.ok || 0;
+  const hh = new Date(qc.at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const cls = ok === total ? 'green' : (ok > 0 ? 'warn' : 'red');
+  el.innerHTML = `<span class="qdot ${cls}"></span> <b>${ok}/${total}</b> ao vivo · ${hh}`;
+  el.dataset.tip = (ok === total ? 'Todos os preços vieram do Yahoo Finance' : 'Sem cotação para: ' + (qc.miss || []).join(', ')) + ' · atualizado às ' + hh;
+}
+
+/* ================= BUSCA DE ATIVO POR TICKER (nome, tipo, cotação) ================= */
+function cleanNome(s) {
+  s = String(s || '').replace(/\s+/g, ' ').trim();
+  s = s.replace(/\s*-\s*RESPONSABILIDADE LIMITADA\.?$/i, '').replace(/RESPONSABILIDADE LIMITADA\.?$/i, '').trim();
+  return s || '';
+}
+function tipoFromYahoo(instrumentType, sym) {
+  const t = String(instrumentType || '').toUpperCase();
+  const s = String(sym || '').toUpperCase();
+  if (t === 'ETF') return 'ETF';
+  if (t === 'MUTUALFUND') return 'Fundo';
+  if (t === 'CURRENCY') return 'Moeda';
+  if (t === 'INDEX') return 'Índice';
+  if (t === 'CRYPTOCURRENCY') return 'Cripto';
+  if (t === 'FUTURE') return 'Futuro';
+  if (t === 'OPTION') return 'Opção';
+  if (t === 'EQUITY') {
+    if (s.endsWith('.SA')) return /11$/.test(s.replace('.SA', '')) ? 'ETF/FII (B3)' : 'Ação (B3)';
+    return 'Ação';
+  }
+  return t || '—';
+}
+function geoFromExchange(ex) {
+  if (/São Paulo|B3|BOVESPA/i.test(ex || '')) return 'Brasil';
+  return '';
+}
+async function lookupSymbol(sym) {
+  const url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) + '?interval=1d&range=1d';
+  const j = await proxyJSON(url);
+  const res = j && j.chart && Array.isArray(j.chart.result) && j.chart.result[0];
+  const m = res && res.meta;
+  if (!m || m.regularMarketPrice == null) throw new Error('ticker não encontrado');
+  const price = m.regularMarketPrice;
+  const cur = (m.currency || currencyOf(sym)).toUpperCase();
+  const fx = (store.qc && store.qc.fx) || {};
+  const conv = toUSD(price, cur, { USDBRL: fx.USDBRL, GBPUSD: fx.GBPUSD });
+  const prev = m.chartPreviousClose ?? m.previousClose ?? null;
+  return {
+    symbol: String(m.symbol || sym).toUpperCase(),
+    nome: cleanNome(m.longName || m.shortName) || String(m.symbol || sym).toUpperCase(),
+    tipo: tipoFromYahoo(m.instrumentType || m.quoteType, m.symbol || sym),
+    exchange: m.fullExchangeName || m.exchangeName || '',
+    currency: cur,
+    price, local: conv.local, usd: conv.usd,
+    varPct: prev ? (price / prev - 1) * 100 : null,
+    at: Date.now(),
+  };
+}
+function applyLookup(a, L) {
+  a.ticker = L.symbol;
+  a.nome = L.nome;
+  a.tipo = L.tipo;
+  if (!a.geo) a.geo = geoFromExchange(L.exchange);
+  a.blank = false;
+  a.precoLocal = L.local;   // base = cotação do momento da busca
+  a.preco = L.usd;
+  a.manualPrice = false;    // volta a seguir as cotações ao vivo
+  const qc = store.qc || {};
+  qc[L.symbol.toUpperCase()] = { price: L.price, currency: L.currency, local: L.local, usd: L.usd, varPct: L.varPct, at: Date.now() };
+  store.qc = qc;
+  saveStore();
+}
+async function lookupAndApply(a, pid, opts = {}) {
+  const sym = String(a.ticker || '').trim().toUpperCase();
+  if (!sym) return;
+  try {
+    const L = await lookupSymbol(sym);
+    applyLookup(a, L);
+    commit(pid);
+    statusRender(); navRender(); render();
+    if (opts.redrawDrawer && state.drawer) drawerRender();
+    toast(`✅ ${L.nome} — ${L.tipo} · ${fmt(L.local)} ${L.currency}`);
+  } catch (e) {
+    if (!opts.silentFail) toast(`⚠️ "${sym}" não encontrado no Yahoo — preencha nome/tipo/preço manualmente`);
+  }
+}
+$('#btnQuotes').onclick = () => refreshQuotes(false);
+$('#autoQToggle').onclick = function () {
+  store.autoQ = !store.autoQ;
+  this.classList.toggle('on', store.autoQ);
+  saveStore();
+  toast(store.autoQ ? '🔄 Cotação automática a cada 1 minuto' : 'Cotação automática desligada');
+};
+function syncAutoQ() { $('#autoQToggle').classList.toggle('on', store.autoQ !== false); }
+setInterval(() => { if (store.autoQ !== false && document.visibilityState === 'visible' && !quotesBusy) refreshQuotes(true); }, 60000);
+
+/* ================= v4: ADICIONAR ETF (busca por nome/ticker, pré-visualização, lote) ================= */
+async function searchYahoo(q) {
+  const j = await proxyJSON('https://query1.finance.yahoo.com/v1/finance/search?q=' + encodeURIComponent(q) + '&quotesCount=8&newsCount=0&listsCount=0');
+  return ((j && j.quotes) || []).filter(x => x.symbol && /ETF|EQUITY|MUTUALFUND/i.test(x.quoteType || ''))
+    .map(x => ({ symbol: String(x.symbol).toUpperCase(), nome: cleanNome(x.longname || x.shortname), tipo: tipoFromYahoo(x.quoteType, x.symbol), ex: x.exchDisp || x.exchange || '' }));
+}
+async function lookupRich(sym) {
+  const L = await lookupSymbol(sym);
+  try { // histórico 1 ano (opcional: se falhar, o ETF ainda é adicionado)
+    const j = await proxyJSON('https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(L.symbol) + '?interval=1wk&range=1y');
+    const r = j.chart.result[0], c = (r.indicators.quote[0].close || []).filter(v => v != null);
+    L.hist = c; L.hi = r.meta.fiftyTwoWeekHigh ?? Math.max(...c); L.lo = r.meta.fiftyTwoWeekLow ?? Math.min(...c);
+    L.ret1y = c.length > 1 ? (c[c.length - 1] / c[0] - 1) * 100 : null;
+  } catch (e) {}
+  return L;
+}
+function addAsset(pid, L, pct, qtd) {
+  const p = P(pid);
+  if (p.assets.some(x => String(x.ticker || '').toUpperCase() === L.symbol)) return false;
+  const a = { ticker: L.symbol, nome: L.nome, tipo: L.tipo, geo: '', fator: '', pct: pct || 0, qtd: qtd || 0, precoLocal: L.local, preco: L.usd, manualPrice: false };
+  applyLookup(a, L); p.assets.push(a); commit(pid);
+  return true;
+}
+function showPid(pid) { if (state.view === pid) { navRender(); render(); } else go(pid); }
+function sparkSvg(c) {
+  if (!c || c.length < 2) return '';
+  const mn = Math.min(...c), mx = Math.max(...c), w = 220, h = 44;
+  const pts = c.map((v, i) => (i / (c.length - 1) * w).toFixed(1) + ',' + (h - 3 - (v - mn) / ((mx - mn) || 1) * (h - 6)).toFixed(1)).join(' ');
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/></svg>`;
+}
+function openAddModal(pidPref) {
+  const def = pidPref || (state.view !== 'overview' ? state.view : RAW[0].id);
+  const opts = RAW.map(r => `<option value="${r.id}" ${r.id === def ? 'selected' : ''}>${esc(P(r.id).carteira)}</option>`).join('');
+  openModal('➕ Adicionar ETF / ativo', `
+    <div class="ad-row"><label>Carteira</label><select id="adPf">${opts}</select></div>
+    <div class="ad-row"><input id="adQ" placeholder="Nome ou ticker — ex.: IVVB11, VOO, vanguard world, VWRA.L" autocomplete="off"><button class="btn primary" id="adGo">🔎 Buscar</button></div>
+    <div id="adList" class="sr-list"></div><div id="adPv"></div>
+    <p class="sub" id="adHint" style="margin:6px 0 0">💡 Cole <b>vários tickers</b> (ex.: <b>VOO, IVVB11.SA, VWRA.L</b>) para adicionar em lote. Nome, tipo, preço e conversão para US$ são buscados sozinhos.</p>`);
+  const q = $('#adQ'), list = $('#adList'), pv = $('#adPv'); let timer = null;
+  const toks = () => q.value.split(/[\s,;]+/).filter(Boolean);
+  const isTk = t => /^[A-Za-z0-9.\-=^]{1,14}$/.test(t);
+  async function pick(sym) {
+    pv.innerHTML = '<p class="sub">⏳ Carregando ' + esc(sym) + '…</p>';
+    try {
+      const L = await lookupRich(sym);
+      const vp = L.varPct;
+      const pos = (L.hi && L.hi > L.lo) ? Math.max(0, Math.min(100, (L.local - L.lo) / (L.hi - L.lo) * 100)) : null;
+      pv.innerHTML = `<div class="pv"><h4>${esc(L.nome)} <span style="color:var(--muted);font-weight:500">· ${esc(L.symbol)}</span></h4>
+        <p class="sub">${esc(L.tipo)} · ${esc(L.exchange || '—')} · moeda ${esc(L.currency)}</p>
+        <div class="pv-grid">
+          <div><small>Preço</small><b>${fmt(L.local)} ${esc(L.currency)}</b></div>
+          <div><small>Em US$</small><b>${usd(L.usd)}</b></div>
+          <div><small>Hoje</small><b class="${vp >= 0 ? 'up' : 'dn'}">${vp == null ? '—' : (vp >= 0 ? '+' : '') + fmt(vp) + '%'}</b></div>
+          <div><small>12 meses</small><b class="${L.ret1y >= 0 ? 'up' : 'dn'}">${L.ret1y == null ? '—' : (L.ret1y >= 0 ? '+' : '') + fmt(L.ret1y) + '%'}</b></div>
+          <div><small>Mín–Máx 52s</small><b>${L.hi ? fmt(L.lo) + ' – ' + fmt(L.hi) : '—'}</b></div>
+          <div><small>Na faixa 52s</small><b>${pos == null ? '—' : Math.round(pos) + '%'}</b></div>
+        </div>${sparkSvg(L.hist)}
+        <div class="pv-add"><input id="adPct" inputmode="decimal" placeholder="% alvo"><input id="adQtd" inputmode="decimal" placeholder="Qtd atual"><button class="btn primary" id="adOk">✔ Adicionar à carteira</button></div></div>`;
+      $('#adOk').onclick = () => {
+        const pid = $('#adPf').value;
+        if (!addAsset(pid, L, parseNum($('#adPct').value), parseNum($('#adQtd').value))) { toast('⚠️ ' + L.symbol + ' já está nessa carteira'); return; }
+        closeModal(); showPid(pid);
+        openDrawer(pid, P(pid).assets.length - 1);
+        toast(`✅ ${L.nome} adicionado`);
+      };
+    } catch (e) { pv.innerHTML = `<p class="sub">⚠️ Não consegui carregar <b>${esc(sym)}</b> agora (${esc(e && e.message || e)}). Pode ser limite das fontes públicas de cotação. <button class="btn small" id="adRetry">↻ Tentar de novo</button></p>`; const rb = $('#adRetry'); if (rb) rb.onclick = () => pick(sym); }
+  }
+  async function batch(pid, t) {
+    let ok = 0; const fail = [];
+    for (let i = 0; i < t.length; i++) {
+      list.innerHTML = `<p class="sub">⏳ ${i + 1}/${t.length} · ${esc(t[i])}…</p>`;
+      try { const L = await lookupSymbol(t[i].toUpperCase()); addAsset(pid, L, 0, 0) ? ok++ : fail.push(t[i] + ' (já existe)'); }
+      catch (e) { fail.push(t[i]); }
+      await sleepMs(400);
+    }
+    closeModal(); showPid(pid);
+    toast(`✅ ${ok} adicionado(s)` + (fail.length ? ' · falhou: ' + fail.join(', ') : '') + ' — defina os % alvo');
+  }
+  async function search() {
+    const t = toks(); pv.innerHTML = '';
+    if (!t.length) return;
+    if (t.length > 1 && t.every(isTk)) return batch($('#adPf').value, t);
+    const term = q.value.trim(); list.innerHTML = '<p class="sub">🔎 Buscando…</p>';
+    let res = [];
+    try { res = await searchYahoo(term); } catch (e) {}
+    const direct = t.length === 1 && isTk(t[0]) && !res.some(r => r.symbol === t[0].toUpperCase())
+      ? `<button class="sr-item" data-s="${esc(t[0].toUpperCase())}"><b>${esc(t[0].toUpperCase())}</b><span>Usar este ticker exato</span><i>Yahoo</i></button>` : '';
+    list.innerHTML = res.map(r => `<button class="sr-item" data-s="${esc(r.symbol)}"><b>${esc(r.symbol)}</b><span>${esc(r.nome)}</span><i>${esc(r.tipo)} · ${esc(r.ex)}</i></button>`).join('') + direct
+      || '<p class="sub">Nada encontrado — tente o ticker com sufixo (.SA, .L).</p>';
+    $$('#adList .sr-item').forEach(b => b.onclick = () => pick(b.dataset.s));
+  }
+  $('#adGo').onclick = search;
+  q.onkeydown = e => { if (e.key === 'Enter') search(); };
+  q.oninput = () => { clearTimeout(timer); if (q.value.trim().length >= 3 && toks().length === 1) timer = setTimeout(search, 800); };
+  q.focus();
+}
+$('#btnAddEtf').onclick = () => openAddModal();
+$('#btnAddRow').onclick = () => openAddModal();
+
+/* ================= v4: cor de destaque ================= */
+function applyAccent() {
+  const a = store.accent || 'azul';
+  document.documentElement.dataset.accent = a;
+  $$('#accentSw button').forEach(b => b.classList.toggle('active', b.dataset.ac === a));
+}
+$$('#accentSw button').forEach(b => b.onclick = () => { store.accent = b.dataset.ac; saveStore(); applyAccent(); render(); });
+applyAccent();
+
+/* ================= v5: proxy próprio, estatísticas 12m / 52s ================= */
+const _proxyJSON = proxyJSON;
+proxyJSON = async function (url) {
+  if (store.proxy) { // Worker próprio primeiro; se falhar, cai nos proxies públicos
+    try {
+      const r = await fetchTimeout(store.proxy.replace(/\/$/, '') + '/?url=' + encodeURIComponent(url), 9000);
+      if (r.ok) return await r.json();
+    } catch (e) {}
+  }
+  return _proxyJSON(url);
+};
+const _recalc = recalc;
+recalc = function (p) {
+  const r = _recalc(p);
+  r.assets.forEach(a => {
+    const q = quoteFor(a.ticker);
+    a.ret1y = q && q.ret1y != null ? q.ret1y : null;
+    a.pos52 = q && q.hi > q.lo && q.price != null ? Math.max(0, Math.min(100, (q.price - q.lo) / (q.hi - q.lo) * 100)) : null;
+  });
+  return r;
+};
+let statsBusy = false;
+async function refreshStats() {
+  const qc = store.qc; if (!qc || statsBusy) return;
+  const syms = allSymbols().filter(s => !FX_SYMBOLS.includes(s) && qc[s] && (!qc[s].st || Date.now() - qc[s].st > 6 * 3600e3));
+  if (!syms.length) return;
+  statsBusy = true;
+  try {
+    const raw = await proxyJSON('https://query1.finance.yahoo.com/v8/finance/spark?symbols=' + encodeURIComponent(syms.join(',')) + '&range=1y&interval=1wk');
+    syms.forEach(s => {
+      const c = raw && raw[s] && Array.isArray(raw[s].close) ? raw[s].close.filter(v => v != null) : [];
+      if (c.length < 2) return;
+      const q = store.qc[s]; q.ret1y = (c[c.length - 1] / c[0] - 1) * 100; q.hi = Math.max(...c, q.price); q.lo = Math.min(...c, q.price); q.st = Date.now();
+    });
+    saveStore(); if (state.view !== 'overview') render();
+  } catch (e) {} finally { statsBusy = false; }
+}
+const _refreshQuotes = refreshQuotes;
+refreshQuotes = async function (silent) { await _refreshQuotes(silent); refreshStats(); };
+const _addAsset = addAsset;
+addAsset = function (pid, L, pct, qtd) {
+  const ok = _addAsset(pid, L, pct, qtd);
+  if (ok && L.hist) { const q = store.qc[L.symbol]; q.ret1y = L.ret1y; q.hi = L.hi; q.lo = L.lo; q.st = Date.now(); saveStore(); }
+  return ok;
+};
+$('#btnProxy').onclick = () => {
+  openModal('🔌 Proxy de cotações', `<p class="sub" style="margin:0 0 10px">Cole a URL do seu Cloudflare Worker (arquivo <b>cotacoes-worker.js</b>), ex.: <b>https://cotacoes.seunome.workers.dev</b>. Vazio = usa os proxies públicos.</p>
+    <div class="ad-row"><input id="pxUrl" value="${esc(store.proxy || '')}" placeholder="https://…workers.dev"><button class="btn primary" id="pxSave">Salvar e testar</button></div><p class="sub" id="pxOut" style="margin:0"></p>`);
+  $('#pxSave').onclick = async () => {
+    store.proxy = $('#pxUrl').value.trim(); saveStore();
+    const out = $('#pxOut');
+    if (!store.proxy) { out.textContent = 'Proxy removido — usando proxies públicos.'; return; }
+    out.textContent = '⏳ Testando…';
+    try {
+      const r = await fetchTimeout(store.proxy.replace(/\/$/, '') + '/?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/spark?symbols=USDBRL=X&range=1d&interval=1d'), 9000);
+      const j = await r.json();
+      out.textContent = j['USDBRL=X'] ? '✅ Funcionando — dólar a R$ ' + fmt(sparkPrice(j['USDBRL=X'])) : '⚠️ Respondeu, mas sem dados do Yahoo.';
+      if (j['USDBRL=X']) refreshQuotes(true);
+    } catch (e) { out.textContent = '⚠️ Falhou — confira a URL do Worker.'; }
+  };
+};
+
+/* ================= v6: fallback de cotação ao adicionar ================= */
+window.__srHints = {};
+const _searchYahoo = searchYahoo;
+searchYahoo = async function (q) { const r = await _searchYahoo(q); r.forEach(x => window.__srHints[x.symbol] = x); return r; };
+const _lookupSymbol = lookupSymbol;
+lookupSymbol = async function (sym) {
+  try { return await _lookupSymbol(sym); }
+  catch (e) { // o endpoint "chart" falhou: tenta o "spark" (o mesmo das cotações ao vivo) + dados da busca
+    const raw = await proxyJSON('https://query1.finance.yahoo.com/v8/finance/spark?symbols=' + encodeURIComponent(sym + ',USDBRL=X,GBPUSD=X') + '&range=1d&interval=1d');
+    const d = raw && raw[sym], price = sparkPrice(d);
+    if (price == null) throw new Error('sem cotação para ' + sym);
+    const fx = { USDBRL: sparkPrice(raw['USDBRL=X']), GBPUSD: sparkPrice(raw['GBPUSD=X']) };
+    const cur = currencyOf(sym), conv = toUSD(price, cur, fx), h = window.__srHints[sym] || {};
+    return { symbol: sym, nome: h.nome || sym, tipo: h.tipo || 'ETF', exchange: h.ex || '', currency: cur, price, local: conv.local, usd: conv.usd, varPct: d.fulldayChangePercent ?? null, at: Date.now() };
+  }
+};
+
+/* ================= RENDER MESTRE / INIT ================= */
+function render() {
+  if (typeof statusRender === 'function') statusRender();
+  if (state.view === 'overview') { navRender(); renderOverview(); }
+  else { navRender(); renderPort(); }
+}
+
+// simulação de aporte: recalcula alvos/faltantes na hora
+$('#aporteInput').addEventListener('change', e => {
+  if (state.view === 'overview') { e.target.value = '0,00'; toast('Escolha uma carteira para simular o aporte'); return; }
+  const p = P(state.view);
+  p.aporte = parseNum(e.target.value);
+  recalc(p); commit(p.id);
+  navRender(); renderPort();
+  toast('Aporte ' + usd(p.aporte) + ' — alvos e faltantes recalculados');
+});
+
+$$('#donutModes button').forEach(b => b.onclick = () => {
+  state.donutMode = b.dataset.m;
+  $$('#donutModes button').forEach(x => x.classList.toggle('active', x === b));
+  renderPort();
+});
+
+syncEditToggle();
+syncAutoQ();
+watchSystemTheme();
+navRender();
+go('overview');
+applyTheme(); // garante ícone/tema e re-render com cores do tema
+statusRender();
+refreshQuotes(true); // primeira busca de cotações ao abrir
+
+</script>
+</body>
+</html>
