@@ -231,6 +231,7 @@ td .pctbar i{display:block;height:100%;background:var(--accent)}
 .badge.sim{background:var(--green-bg);color:var(--green)}
 .badge.nao{background:var(--red-bg);color:var(--red)}
 .badge.void{background:var(--card2);color:var(--muted)}
+.badge.leg{background:var(--card2);color:var(--accent);border:1px solid var(--border)}
 td.editable{cursor:text}
 td.editable:hover{box-shadow:inset 0 0 0 1px var(--accent);border-radius:4px}
 td input.cell{width:88px;background:var(--card2);border:1px solid var(--accent);border-radius:6px;padding:3px 6px;color:var(--text);text-align:right;font-size:12.5px}
@@ -364,6 +365,58 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--card2) 55%,transp
 </style>
 </head>
 <body>
+<style>
+#loginGate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;
+ background:radial-gradient(1200px 600px at 10% -10%,color-mix(in srgb,var(--accent) 22%,transparent),transparent),radial-gradient(900px 500px at 110% 110%,color-mix(in srgb,var(--c2) 18%,transparent),transparent),var(--bg)}
+#loginGate.hide{display:none}
+body.locked{overflow:hidden}
+.lg-card{width:100%;max-width:410px;background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:34px 30px 26px;animation:lgIn .45s ease}
+@keyframes lgIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.lg-logo{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin:0 auto 14px;background:linear-gradient(135deg,var(--accent),var(--c2));color:var(--on-accent);font-weight:800;font-size:20px}
+.lg-card h1{margin:0;text-align:center;font-size:22px}
+.lg-card .lg-sub{margin:6px 0 24px;text-align:center;color:var(--muted);font-size:13.5px}
+.lg-f{margin-bottom:14px}
+.lg-f label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.lg-in{position:relative}
+.lg-in input{width:100%;padding:11px 42px 11px 13px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);outline:none;transition:border .2s,box-shadow .2s}
+.lg-in input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.lg-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--muted);padding:6px;font-size:15px}
+.lg-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin:4px 0 18px}
+.lg-row label{display:flex;gap:6px;align-items:center;color:var(--muted)}
+.lg-link{background:none;border:0;color:var(--accent);padding:0;font-size:13px}
+.lg-link:hover{text-decoration:underline}
+.lg-btn{width:100%;padding:12px;border-radius:10px;border:0;background:var(--accent);color:var(--on-accent);font-weight:700;transition:background .2s,opacity .2s}
+.lg-btn:hover{background:var(--accent2)}
+.lg-btn:disabled{opacity:.6;cursor:wait}
+.lg-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:18px 0}
+.lg-or:before,.lg-or:after{content:"";flex:1;height:1px;background:var(--border)}
+.lg-g{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-weight:600;display:flex;gap:10px;align-items:center;justify-content:center}
+.lg-g:hover{background:var(--card2)}
+.lg-msg{display:none;padding:10px 12px;border-radius:10px;font-size:13px;margin-bottom:14px}
+.lg-msg.err{display:block;background:var(--red-bg);color:var(--red)}
+.lg-msg.ok{display:block;background:var(--green-bg);color:var(--green)}
+.lg-foot{margin-top:20px;text-align:center;font-size:11.5px;color:var(--muted)}
+</style>
+<div id="loginGate">
+  <form class="lg-card" id="lgForm" autocomplete="on" novalidate>
+    <div class="lg-logo">E3</div>
+    <h1>Dashboard Enxuta 3.0</h1>
+    <p class="lg-sub">Acesse sua conta para continuar</p>
+    <div class="lg-msg" id="lgMsg"></div>
+    <div class="lg-f"><label for="lgEmail">E-mail</label>
+      <div class="lg-in"><input id="lgEmail" type="email" autocomplete="username" placeholder="voce@email.com" required></div></div>
+    <div class="lg-f"><label for="lgPass">Senha</label>
+      <div class="lg-in"><input id="lgPass" type="password" autocomplete="current-password" placeholder="••••••••" required minlength="6">
+      <button type="button" class="lg-eye" id="lgEye" aria-label="Mostrar senha">👁</button></div></div>
+    <div class="lg-row"><label><input type="checkbox" id="lgRemember" checked> Manter conectado</label>
+      <button type="button" class="lg-link" id="lgForgot">Esqueci a senha</button></div>
+    <button class="lg-btn" id="lgSubmit" type="submit">Entrar</button>
+    <div class="lg-or">ou</div>
+    <button type="button" class="lg-g" id="lgGoogle"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Entrar com Google</button>
+    <div class="lg-foot">🔒 Acesso restrito a usuários autorizados</div>
+  </form>
+</div>
+<script>document.body.classList.add('locked');</script>
 <div id="backdrop"></div>
 
 <div class="app">
@@ -401,6 +454,7 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--card2) 55%,transp
       <div class="side-row">
         <button class="btn small" id="btnExport" title="Exportar dados alterados (JSON)">⬇️ JSON</button>
         <button class="btn small" id="btnImport" title="Importar JSON">⬆️ Importar</button>
+        <button class="btn small" id="btnCloud" title="Entrar para salvar na nuvem">☁️ Entrar</button>
         <button class="btn small" id="btnProxy" title="Proxy de cotações (Cloudflare Worker)">🔌 Proxy</button>
         <button class="btn small" id="btnResetAll" title="Descartar TODAS as edições">↺ Tudo</button>
       </div>
@@ -414,6 +468,7 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--card2) 55%,transp
       <button class="icon-btn" id="hamb" aria-label="Abrir menu">☰</button>
       <div class="crumbs" id="crumbs"></div>
       <button class="btn primary" id="btnAddEtf" title="Adicionar ETF buscando por nome ou ticker">＋ ETF</button>
+      <button class="btn" id="btnSwapEtf" title="Trocar um ETF do alvo por outro sem vender o antigo">🔁 Trocar ETF</button>
       <button class="btn qbtn" id="btnQuotes" title="Buscar preços atuais dos ETFs no Yahoo Finance"><span class="ico">🔄</span> Preços ao vivo</button>
       <span class="chip qchip" id="quoteStatus" data-tip="Situação das cotações ao vivo">—</span>
       <div class="aporte-box" id="aporteBox" title="Aporte simulado: altera os valores ideais e recalcula tudo">
@@ -540,6 +595,9 @@ tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--card2) 55%,transp
 <div id="toast"></div>
 <div id="tooltip"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 'use strict';
 /* ================= DADOS (injetado no build) ================= */
@@ -637,22 +695,27 @@ function recalc(p) {
   });
   p.totalInv = ti;
   p.totalProj = ti + p.aporte;
+  // ETF fora do alvo (% = 0) mas com cotas em carteira = LEGADO: reconhecido sozinho, fica parado (sem vender)
+  p.assets.forEach(a => { a.legado = !!a.ticker && a.pct <= 0 && a.qtd > 0; });
+  const legV = p.assets.reduce((s, a) => s + (a.legado ? a.valorAtual : 0), 0);
+  const base = Math.max(0, p.totalProj - legV); // os % alvo valem para o capital que NÃO está travado no legado
   let desvio = 0, buyN = 0, buyV = 0, sellN = 0, sellV = 0, real = 0;
   p.assets.forEach(a => {
     a.pctAtual = ti > 0 ? a.valorAtual / ti * 100 : 0;
-    a.valorIdeal = a.pct / 100 * p.totalProj;
+    a.valorIdeal = a.legado ? a.valorAtual : a.pct / 100 * base;
     a.qtdIdeal = a.precoEff > 0 ? a.valorIdeal / a.precoEff : 0;
     a.valorFalt = a.valorIdeal - a.valorAtual;
     a.qtdFalt = a.precoEff > 0 ? a.valorFalt / a.precoEff : 0;
     a.blank = !a.ticker;
     if (!a.blank) {
       real++;
-      desvio += Math.abs(a.pctAtual - a.pct);
+      if (!a.legado) desvio += Math.abs(a.pctAtual - a.pct);
       if (a.qtdFalt > 0.0049 && a.pct > 0) { buyN++; buyV += a.valorFalt; }
       else if (a.valorFalt < -0.0049 && a.pct > 0) { sellN++; sellV -= a.valorFalt; }
     }
   });
   p.nReal = real;
+  p.legN = p.assets.filter(a => a.legado).length; p.legV = legV; p.legPct = ti > 0 ? legV / ti * 100 : 0;
   p.desvio = real ? desvio / 2 : 0;
   p.buyN = buyN; p.buyV = buyV; p.sellN = sellN; p.sellV = sellV;
   const sumPct = p.assets.reduce((s, a) => s + (!a.blank ? a.pct : 0), 0);
@@ -918,6 +981,7 @@ function renderPort() {
     { ic: '🎯', cls: 'warn', lb: 'Desalinhamento', val: pctf(p.desvio), hint: 'média |atual − alvo|', tip: 'Quanto a carteira atual difere do alvo (clique p/ ranking)', act: () => openModal('🎯 Ranking de desalinho', mdDesvio(p)) },
     { ic: '🟢', cls: 'green', lb: 'Comprar', val: p.buyN + ' ativo(s)', hint: usd(p.buyV) + ' a aportar', tip: 'Linhas com "Aportar? SIM" (clique p/ lista)', act: () => openModal('🟢 Lista de compra (' + usd(p.buyV) + ')', mdBuy(p)) },
     { ic: '🔴', cls: 'red', lb: 'Vender', val: p.sellN + ' ativo(s)', hint: usd(p.sellV) + ' a vender', tip: 'Linhas acima do alvo (clique p/ lista)', act: () => openModal('🔴 Lista de venda (' + usd(p.sellV) + ')', mdSell(p)) },
+    ...(p.legN ? [{ ic: '🔒', cls: 'purple', lb: 'Legado', val: usd(p.legV), hint: p.legN + ' ETF(s) · ' + pctf(p.legPct) + ' da carteira · sem vender', tip: 'ETFs que saíram do alvo e ficam parados (clique)', act: () => openModal('🔒 Legado — mantido sem vender', mdLegado(p)) }] : []),
     { ic: '⚖️', cls: p.sumPctOk ? 'blue' : 'warn', lb: 'Σ% alvo', val: pctf(p.sumPct), hint: Math.abs(p.sumPct - 100) <= 0.01 ? 'fechado em 100% ✔' : 'deve fechar em 100%', tip: 'Soma dos percentuais-alvo da tabela', act: () => { $('#tblFilter').focus(); toast('Confira os % na tabela abaixo'); document.querySelector('#page-port .tbl-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' }); } },
     { ic: '📦', cls: '', lb: 'Ativos', val: p.nReal, hint: p.prazo, tip: 'Ir para a tabela de ativos', act: () => document.querySelector('#page-port .tbl-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' }) },
   ];
@@ -958,8 +1022,8 @@ function renderPort() {
     const w = Math.abs(a.valorFalt) / mx * 47;
     const pos = a.valorFalt >= 0;
     return `
-    <div class="bar-row" data-ai="${p.assets.indexOf(a)}" data-tip="${esc(a.ticker)}: ${pos ? 'comprar' : 'vender'} ${usd(Math.abs(a.valorFalt))}">
-      <div class="nm"><b>${esc(a.ticker || '—')}</b> · ${fmt(a.pct, 0)}%</div>
+    <div class="bar-row" data-ai="${p.assets.indexOf(a)}" data-tip="${esc(a.ticker)}: ${a.legado ? 'legado: manter sem vender —' : (pos ? 'comprar' : 'vender')} ${usd(Math.abs(a.valorFalt))}">
+      <div class="nm"><b>${esc(a.ticker || '—')}</b> · ${a.legado ? '🔒 legado' : fmt(a.pct, 0) + '%'}</div>
       <div class="bar-track"><div class="bar-axis"></div>
         <div class="bar-fill ${pos ? 'pos' : 'neg'}" style="${pos ? 'left:50%' : 'right:50%'};width:${Math.max(w, 0.4)}%"></div>
       </div>
@@ -993,7 +1057,7 @@ function renderPort() {
 
   tableRender(p);
   $('#editHint').innerHTML = editOn()
-    ? '💡 Modo editar <b>ativo</b>: "＋ Adicionar ativo" busca <b>nome, tipo e cotação</b> do ticker no Yahoo Finance; editar um ticker também refaz a busca. Aceita vírgula ou ponto. Preços acompanham o Yahoo ao vivo; editar um preço congela a cotação daquele ativo (botão "↺ Usar cotação ao vivo" no painel devolve). Aporte, %, quantidades e preços recalculam tudo na hora e ficam salvos neste navegador.'
+    ? '💡 Modo editar <b>ativo</b>: "＋ Adicionar ativo" busca <b>nome, tipo e cotação</b> do ticker no Yahoo Finance; editar um ticker também refaz a busca. Aceita vírgula ou ponto. Preços acompanham o Yahoo ao vivo; editar um preço congela a cotação daquele ativo (botão "↺ Usar cotação ao vivo" no painel devolve). Aporte, %, quantidades e preços recalculam tudo na hora e ficam salvos neste navegador. <b>ETF com % alvo 0 e cotas em carteira vira 🔒 legado sozinho</b> (não entra na lista de venda).'
     : '🔒 Somente leitura: ative o <b>modo editar</b> na barra lateral para alterar células. Gráficos e KPIs continuam clicáveis.';
 }
 
@@ -1015,6 +1079,10 @@ function mdDesvio(p) {
     const d = a.pctAtual - a.pct;
     return `<button class="md-item" data-ai="${p.assets.indexOf(a)}"><span class="n">${esc(a.ticker)}<small>atual ${pctf(a.pctAtual)} · alvo ${pctf(a.pct)}</small></span><span class="v ${d > 0 ? 'neg' : 'pos'}">${d > 0 ? '+' : ''}${fmt(d)} pts</span></button>`;
   }).join('') + '</div>';
+}
+function mdLegado(p) {
+  const rows = p.assets.map((a, i) => ({ a, i })).filter(x => x.a.legado);
+  return '<p class="sub" style="margin:0 0 8px">Estes ETFs saíram do alvo (% = 0) e o sistema <b>não manda vender</b>. Os aportes novos vão só para os ETFs do alvo, então o legado vai diluindo sozinho. Quando quiser, é só zerar a quantidade para tirá-lo da lista.</p><div class="md-list">' + rows.map(x => `<button class="md-item" data-ai="${x.i}"><span class="n">${esc(x.a.ticker)}<small>${fmt(x.a.qtd, 4)} cota(s) · ${pctf(x.a.pctAtual)} da carteira</small></span><span class="v">${usd(x.a.valorAtual)}</span></button>`).join('') + '</div>';
 }
 function mdBuy(p) { return mdListFalt(p, a => a.valorFalt > 0.0049, true); }
 function mdSell(p) { return mdListFalt(p, a => a.valorFalt < -0.0049, false); }
@@ -1115,12 +1183,13 @@ function tableRender(p) {
       if (c.k === 'del') return `<td>${editOn() && !a.blank ? `<button class="del-btn" data-del="${i}" title="Excluir linha">🗑</button>` : ''}</td>`;
       if (c.k === 'ticker') {
         const q = quoteDot(a);
-        return `<td data-cell="1" data-i="${i}" data-k="ticker" style="text-align:left"><span class="qdot ${q.cls}" data-tip="${esc(q.tip)}"></span>${esc(a.ticker || '')}${a.nome ? `<span class="tk-sub" title="${esc(a.nome)}">${esc(a.nome)}${a.tipo ? ' · ' + esc(a.tipo) : ''}</span>` : ''}</td>`;
+        return `<td data-cell="1" data-i="${i}" data-k="ticker" style="text-align:left"><span class="qdot ${q.cls}" data-tip="${esc(q.tip)}"></span>${esc(a.ticker || '')}${a.legado ? ' <span class="badge leg" data-tip="Legado: fora do alvo, mantido sem vender">🔒</span>' : ''}${a.nome ? `<span class="tk-sub" title="${esc(a.nome)}">${esc(a.nome)}${a.tipo ? ' · ' + esc(a.tipo) : ''}</span>` : ''}</td>`;
       }
       if (c.k === 'ret1y') return a.ret1y == null ? '<td class="num" style="color:var(--muted)">—</td>' : `<td class="num ${a.ret1y >= 0 ? 'up' : 'dn'}">${a.ret1y >= 0 ? '+' : ''}${fmt(a.ret1y)}%</td>`;
       if (c.k === 'pos52') return a.pos52 == null ? '<td class="num" style="color:var(--muted)">—</td>' : `<td class="num" data-tip="Posição do preço entre a mínima e a máxima de 52 semanas">${Math.round(a.pos52)}%<span class="pctbar"><i style="width:${a.pos52.toFixed(0)}%"></i></span></td>`;
       if (c.k === 'pctAtual') return `<td class="num">${pctf(a.pctAtual)}<span class="pctbar"><i style="width:${Math.min(100, a.pctAtual).toFixed(0)}%"></i></span></td>`;
       if (c.k === 'aportar') {
+        if (a.legado) return '<td><span class="badge leg" data-tip="Fora do alvo, mantido sem vender. Novos aportes vão para os ETFs do alvo.">🔒 LEGADO</span></td>';
         const b = a.blank ? 'void' : (a.qtdFalt > 0.0049 && a.pct > 0 ? 'sim' : 'nao');
         return `<td><span class="badge ${b}">${a.blank ? '—' : (b === 'sim' ? 'SIM' : 'NÃO')}</span></td>`;
       }
@@ -1730,6 +1799,58 @@ function openAddModal(pidPref) {
   q.focus();
 }
 $('#btnAddEtf').onclick = () => openAddModal();
+
+/* ================= TROCAR ETF (sem vender): o antigo vira "legado", o novo herda o % alvo ================= */
+function openSwapModal() {
+  if (state.view === 'overview') { toast('Abra uma carteira para trocar um ETF'); return; }
+  const pid = state.view, p = recalc(P(pid));
+  const olds = p.assets.map((a, i) => ({ a, i })).filter(x => x.a.ticker && x.a.pct > 0);
+  if (!olds.length) { toast('Nenhum ETF com % alvo nesta carteira'); return; }
+  openModal('🔁 Trocar ETF (sem vender)', `
+    <div class="ad-row"><label>Sai do alvo</label><select id="swOld">${olds.map(x => `<option value="${x.i}">${esc(x.a.ticker)} · alvo ${fmt(x.a.pct, 2)}% · ${fmt(x.a.qtd, 4)} cota(s)</option>`).join('')}</select></div>
+    <div class="ad-row"><input id="swQ" placeholder="ETF novo — nome ou ticker (ex.: VWRA.L, IVVB11)" autocomplete="off"><button class="btn primary" id="swGo">🔎 Buscar</button></div>
+    <div id="swList" class="sr-list"></div><div id="swPv"></div>
+    <p class="sub" style="margin:6px 0 0">💡 O ETF novo herda o % alvo do antigo. O antigo <b>não é vendido</b>: se tiver cotas, vira <b>🔒 legado</b> automaticamente e os aportes seguintes vão só para o novo.</p>`);
+  const q = $('#swQ'), list = $('#swList'), pv = $('#swPv');
+  async function pick(sym) {
+    pv.innerHTML = '<p class="sub">⏳ Carregando ' + esc(sym) + '…</p>';
+    try {
+      const L = await lookupRich(sym);
+      pv.innerHTML = `<div class="pv"><h4>${esc(L.nome)} <span style="color:var(--muted);font-weight:500">· ${esc(L.symbol)}</span></h4>
+        <p class="sub">${esc(L.tipo)} · ${esc(L.exchange || '—')} · moeda ${esc(L.currency)} · ${fmt(L.local)} ${esc(L.currency)} (${usd(L.usd)})</p>
+        <div class="pv-add"><button class="btn primary" id="swOk">✔ Trocar para ${esc(L.symbol)}</button></div></div>`;
+      $('#swOk').onclick = () => {
+        const idx = +$('#swOld').value, old = p.assets[idx];
+        if (!old) return;
+        if (String(old.ticker).toUpperCase() === L.symbol) { toast('⚠️ É o mesmo ETF'); return; }
+        const pct = parseNum(old.pct);
+        let nw = p.assets.find(x => String(x.ticker || '').toUpperCase() === L.symbol);
+        if (nw) nw.pct = parseNum(nw.pct) + pct;
+        else { addAsset(pid, L, pct, 0); nw = p.assets[p.assets.length - 1]; }
+        if (!nw.geo) nw.geo = old.geo;
+        if (!nw.fator) nw.fator = old.fator;
+        old.pct = 0;
+        const virouLegado = parseNum(old.qtd) > 0;
+        if (!virouLegado) p.assets.splice(p.assets.indexOf(old), 1); // não tinha cotas: nada a manter
+        commit(pid); closeModal(); showPid(pid);
+        toast(virouLegado ? `✅ ${L.symbol} assumiu o alvo · ${old.ticker} ficou como 🔒 legado (sem vender)` : `✅ ${old.ticker} substituído por ${L.symbol}`);
+      };
+    } catch (e) { pv.innerHTML = `<p class="sub">⚠️ Não consegui carregar <b>${esc(sym)}</b> agora. <button class="btn small" id="swRetry">↻ Tentar de novo</button></p>`; const rb = $('#swRetry'); if (rb) rb.onclick = () => pick(sym); }
+  }
+  async function search() {
+    const term = q.value.trim(); pv.innerHTML = ''; if (!term) return;
+    list.innerHTML = '<p class="sub">🔎 Buscando…</p>';
+    let res = []; try { res = await searchYahoo(term); } catch (e) {}
+    const direct = /^[A-Za-z0-9.\-=^]{1,14}$/.test(term) && !res.some(r => r.symbol === term.toUpperCase())
+      ? `<button class="sr-item" data-s="${esc(term.toUpperCase())}"><b>${esc(term.toUpperCase())}</b><span>Usar este ticker exato</span><i>Yahoo</i></button>` : '';
+    list.innerHTML = res.map(r => `<button class="sr-item" data-s="${esc(r.symbol)}"><b>${esc(r.symbol)}</b><span>${esc(r.nome)}</span><i>${esc(r.tipo)} · ${esc(r.ex)}</i></button>`).join('') + direct || '<p class="sub">Nada encontrado — tente o ticker com sufixo (.SA, .L).</p>';
+    $$('#swList .sr-item').forEach(b => b.onclick = () => pick(b.dataset.s));
+  }
+  $('#swGo').onclick = search;
+  q.onkeydown = e => { if (e.key === 'Enter') search(); };
+  q.focus();
+}
+$('#btnSwapEtf').onclick = openSwapModal;
 $('#btnAddRow').onclick = () => openAddModal();
 
 /* ================= v4: cor de destaque ================= */
@@ -1851,6 +1972,129 @@ go('overview');
 applyTheme(); // garante ícone/tema e re-render com cores do tema
 statusRender();
 refreshQuotes(true); // primeira busca de cotações ao abrir
+
+/* ================= NUVEM: Firebase (login Google + Firestore) ================= */
+const FB_CFG = {
+  apiKey: "AIzaSyAV9X4y9qmVOMsFA_IWq5qQcgeMCfhyuR4",
+  authDomain: "etfs-d049e.firebaseapp.com",
+  projectId: "etfs-d049e",
+  storageBucket: "etfs-d049e.firebasestorage.app",
+  messagingSenderId: "382709154719",
+  appId: "1:382709154719:web:4af6e12c24ef46bf7533aa"
+};
+const cloud = { user: null, auth: null, db: null, applying: false, timer: null, lastJson: JSON.stringify(store.edits) };
+const cloudDoc = () => cloud.db.collection('users').doc(cloud.user.uid).collection('app').doc('store');
+function cloudLabel(state) {
+  const b = $('#btnCloud');
+  b.textContent = cloud.user ? '☁️ ' + String(cloud.user.displayName || cloud.user.email || 'Conectado').split(' ')[0] + (state || '') : '☁️ Entrar';
+  b.title = cloud.user ? 'Conectado — clique para opções' : 'Entrar para salvar na nuvem';
+}
+async function cloudPush() {
+  if (!cloud.user) return;
+  try {
+    cloudLabel(' …');
+    await cloudDoc().set({ edits: JSON.stringify(store.edits), ts: store.editsTs || Date.now(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    cloudLabel(' ✓');
+  } catch (e) { cloudLabel(' ⚠️'); toast('⚠️ Não salvou na nuvem: ' + (e.code || e.message)); }
+}
+function schedulePush() { clearTimeout(cloud.timer); cloud.timer = setTimeout(cloudPush, 1200); }
+function applyRemote(d) {
+  store.edits = JSON.parse(d.edits || '{}'); store.editsTs = d.ts || Date.now();
+  cloud.lastJson = JSON.stringify(store.edits);
+  cloud.applying = true; saveStore(); cloud.applying = false;
+  Object.keys(work).forEach(k => delete work[k]);
+  navRender(); render(); toast('☁️ Dados carregados da nuvem');
+}
+async function cloudSync() {
+  try {
+    const snap = await cloudDoc().get();
+    const hasLocal = Object.keys(store.edits).length > 0;
+    if (snap.exists) {
+      const d = snap.data();
+      if ((d.ts || 0) > (store.editsTs || 0)) {
+        if (hasLocal && !store.editsTs && !confirm('Há dados na nuvem e também alterações só neste navegador.\n\nOK = usar os da nuvem\nCancelar = enviar os deste navegador para a nuvem')) { store.editsTs = Date.now(); await cloudPush(); return; }
+        applyRemote(d); cloudLabel(' ✓'); return;
+      }
+    }
+    if (hasLocal || !snap.exists) { store.editsTs = store.editsTs || Date.now(); await cloudPush(); }
+    else cloudLabel(' ✓');
+  } catch (e) { cloudLabel(' ⚠️'); toast('⚠️ Nuvem: ' + (e.code || e.message)); }
+}
+const _saveStore = saveStore;
+saveStore = function () {
+  const j = JSON.stringify(store.edits);
+  if (!cloud.applying && j !== cloud.lastJson) { cloud.lastJson = j; store.editsTs = Date.now(); schedulePush(); }
+  _saveStore();
+};
+(function initCloud() {
+  if (!window.firebase) { $('#btnCloud').title = 'Firebase não carregou (sem internet?)'; return; }
+  firebase.initializeApp(FB_CFG);
+  cloud.auth = firebase.auth(); cloud.db = firebase.firestore();
+  cloud.auth.onAuthStateChanged(u => { cloud.user = u; cloudLabel(); gateShow(!u); if (u) cloudSync(); });
+})();
+$('#btnCloud').onclick = async () => {
+  if (!cloud.auth) { toast('Firebase não carregou — confira a internet'); return; }
+  if (!cloud.user) {
+    gateShow(true); return;
+  }
+  openModal('☁️ Nuvem', `<p class="sub" style="margin:0 0 10px">Conectado como <b>${esc(cloud.user.email || cloud.user.displayName)}</b>. Suas carteiras salvam sozinhas a cada edição.</p>
+    <div style="display:flex;gap:8px"><button class="btn primary" id="cdSync">🔄 Sincronizar agora</button><button class="btn" id="cdOut">Sair</button></div>`);
+  $('#cdSync').onclick = async () => { closeModal(); store.editsTs = Date.now(); await cloudPush(); toast('☁️ Enviado para a nuvem'); };
+  $('#cdOut').onclick = async () => { closeModal(); await cloud.auth.signOut(); toast('Desconectado (os dados continuam salvos neste navegador)'); };
+};
+
+/* ================= TELA DE LOGIN ================= */
+function gateShow(on) {
+  $('#loginGate').classList.toggle('hide', !on);
+  document.body.classList.toggle('locked', on);
+  if (on) setTimeout(() => $('#lgEmail').focus(), 50);
+}
+function lgMsg(t, ok) { const m = $('#lgMsg'); m.textContent = t || ''; m.className = 'lg-msg' + (t ? (ok ? ' ok' : ' err') : ''); }
+function lgErr(e) {
+  const map = {
+    'auth/invalid-email': 'E-mail inválido.',
+    'auth/user-disabled': 'Este usuário foi desativado.',
+    'auth/user-not-found': 'E-mail ou senha incorretos.',
+    'auth/wrong-password': 'E-mail ou senha incorretos.',
+    'auth/invalid-credential': 'E-mail ou senha incorretos.',
+    'auth/invalid-login-credentials': 'E-mail ou senha incorretos.',
+    'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns minutos e tente de novo.',
+    'auth/network-request-failed': 'Sem conexão com a internet.',
+    'auth/popup-closed-by-user': 'Login com Google cancelado.',
+    'auth/operation-not-allowed': 'Método de login não habilitado no Firebase.',
+    'auth/unauthorized-domain': 'Domínio não autorizado no Firebase (Authentication › Configurações › Domínios autorizados).'
+  };
+  return map[e.code] || ('Erro: ' + (e.code || e.message));
+}
+(function initGate() {
+  if (!window.firebase || !cloud.auth) { lgMsg('Não foi possível carregar o Firebase. Verifique a internet.'); return; }
+  const btn = $('#lgSubmit');
+  $('#lgEye').onclick = () => { const p = $('#lgPass'); p.type = p.type === 'password' ? 'text' : 'password'; };
+  $('#lgForm').onsubmit = async ev => {
+    ev.preventDefault(); lgMsg('');
+    const email = $('#lgEmail').value.trim(), pass = $('#lgPass').value;
+    if (!email || !pass) { lgMsg('Preencha e-mail e senha.'); return; }
+    btn.disabled = true; btn.textContent = 'Entrando…';
+    try {
+      const P = firebase.auth.Auth.Persistence;
+      await cloud.auth.setPersistence($('#lgRemember').checked ? P.LOCAL : P.SESSION);
+      await cloud.auth.signInWithEmailAndPassword(email, pass);
+      $('#lgPass').value = '';
+    } catch (e) { lgMsg(lgErr(e)); }
+    finally { btn.disabled = false; btn.textContent = 'Entrar'; }
+  };
+  $('#lgForgot').onclick = async () => {
+    const email = $('#lgEmail').value.trim();
+    if (!email) { lgMsg('Digite seu e-mail acima para receber o link de redefinição.'); $('#lgEmail').focus(); return; }
+    try { await cloud.auth.sendPasswordResetEmail(email); lgMsg('Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha.', true); }
+    catch (e) { lgMsg(lgErr(e)); }
+  };
+  $('#lgGoogle').onclick = async () => {
+    lgMsg('');
+    try { await cloud.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+    catch (e) { lgMsg(lgErr(e) + (location.protocol === 'file:' ? ' — abra por http(s), não por arquivo.' : '')); }
+  };
+})();
 
 </script>
 </body>
