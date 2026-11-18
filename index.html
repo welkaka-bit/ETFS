@@ -114,6 +114,18 @@ svg{display:block}
 .chip input{background:none;border:0;color:var(--text);width:110px;font-size:12.5px}
 h2.pgtitle{margin:0;font-size:21px;letter-spacing:-.2px}
 .aporte-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:7px 12px}
+.plano{background:var(--card);border:1px solid var(--green);border-radius:16px;box-shadow:var(--shadow);padding:16px 18px;margin:14px 0}
+.pl-head{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:10px}
+.pl-head h3{margin:0;font-size:16px}
+.pl-tag{background:var(--green-bg);color:var(--green);font-weight:700;font-size:12px;padding:4px 10px;border-radius:999px}
+.pl-tbl{width:100%;border-collapse:collapse;font-size:14px}
+.pl-tbl th{text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px;border-bottom:1px solid var(--border)}
+.pl-tbl td{text-align:right;padding:10px 8px;border-bottom:1px solid var(--border)}
+.pl-tbl th:first-child,.pl-tbl td:first-child{text-align:left}
+.pl-tbl td small{display:block;color:var(--muted);font-size:11.5px}
+.pl-q{font-weight:800;color:var(--green);font-size:15.5px}
+.pl-v{font-weight:700}
+.pl-tbl tfoot td{font-weight:800;border-bottom:0}
 .aporte-box label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
 .aporte-box input{width:92px;border:0;background:none;color:var(--text);font-weight:700;font-size:15px;text-align:right}
 .aporte-box input:focus{outline:2px solid var(--accent);border-radius:6px}
@@ -510,6 +522,7 @@ body.locked{overflow:hidden}
     <!-- ---------- Página: Carteira ---------- -->
     <section class="page" id="page-port">
       <div class="kpis" id="kpiGrid"></div>
+      <div id="planoBox" class="plano"></div>
 
       <div class="charts">
         <div class="card">
@@ -720,6 +733,19 @@ function recalc(p) {
   p.buyN = buyN; p.buyV = buyV; p.sellN = sellN; p.sellV = sellV;
   const sumPct = p.assets.reduce((s, a) => s + (!a.blank ? a.pct : 0), 0);
   p.sumPct = sumPct;
+  // PLANO DO APORTE: só compras — distribui o aporte entre os ativos abaixo do alvo, sem vender nada
+  const elig = p.assets.filter(a => !a.blank && !a.legado && a.pct > 0 && a.precoEff > 0);
+  const D = elig.reduce((s, a) => s + Math.max(0, a.valorFalt), 0);
+  const sp = elig.reduce((s, a) => s + a.pct, 0);
+  p.assets.forEach(a => { a.compra = 0; a.qtdCompra = 0; });
+  if (p.aporte > 0 && elig.length) {
+    elig.forEach(a => {
+      const d = Math.max(0, a.valorFalt);
+      a.compra = D >= p.aporte ? p.aporte * d / D : d + (p.aporte - D) * a.pct / (sp || 1);
+      a.qtdCompra = a.compra / a.precoEff;
+    });
+  }
+  p.plano = elig.filter(a => a.compra > 0.0049).sort((x, y) => y.compra - x.compra);
   return p;
 }
 
@@ -980,7 +1006,7 @@ function renderPort() {
     { ic: '➕', cls: 'green', lb: 'Aporte', val: usd(p.aporte), hint: 'simular no campo acima', tip: 'Clique para ir ao campo de simulação de aporte', act: () => { const b = $('#aporteBox'); b.scrollIntoView({ behavior: 'smooth', block: 'center' }); b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse'); $('#aporteInput').focus(); } },
     { ic: '🎯', cls: 'warn', lb: 'Desalinhamento', val: pctf(p.desvio), hint: 'média |atual − alvo|', tip: 'Quanto a carteira atual difere do alvo (clique p/ ranking)', act: () => openModal('🎯 Ranking de desalinho', mdDesvio(p)) },
     { ic: '🟢', cls: 'green', lb: 'Comprar', val: p.buyN + ' ativo(s)', hint: usd(p.buyV) + ' a aportar', tip: 'Linhas com "Aportar? SIM" (clique p/ lista)', act: () => openModal('🟢 Lista de compra (' + usd(p.buyV) + ')', mdBuy(p)) },
-    { ic: '🔴', cls: 'red', lb: 'Vender', val: p.sellN + ' ativo(s)', hint: usd(p.sellV) + ' a vender', tip: 'Linhas acima do alvo (clique p/ lista)', act: () => openModal('🔴 Lista de venda (' + usd(p.sellV) + ')', mdSell(p)) },
+    { ic: '🛒', cls: 'green', lb: 'Plano do aporte', val: p.plano.length + ' ETF(s)', hint: p.aporte > 0 ? usd(p.aporte) + ' só em compras' : 'informe o aporte acima', tip: 'O que comprar com o aporte (sem vender nada)', act: () => document.getElementById('planoBox').scrollIntoView({ behavior: 'smooth', block: 'center' }) },
     ...(p.legN ? [{ ic: '🔒', cls: 'purple', lb: 'Legado', val: usd(p.legV), hint: p.legN + ' ETF(s) · ' + pctf(p.legPct) + ' da carteira · sem vender', tip: 'ETFs que saíram do alvo e ficam parados (clique)', act: () => openModal('🔒 Legado — mantido sem vender', mdLegado(p)) }] : []),
     { ic: '⚖️', cls: p.sumPctOk ? 'blue' : 'warn', lb: 'Σ% alvo', val: pctf(p.sumPct), hint: Math.abs(p.sumPct - 100) <= 0.01 ? 'fechado em 100% ✔' : 'deve fechar em 100%', tip: 'Soma dos percentuais-alvo da tabela', act: () => { $('#tblFilter').focus(); toast('Confira os % na tabela abaixo'); document.querySelector('#page-port .tbl-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' }); } },
     { ic: '📦', cls: '', lb: 'Ativos', val: p.nReal, hint: p.prazo, tip: 'Ir para a tabela de ativos', act: () => document.querySelector('#page-port .tbl-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' }) },
@@ -995,6 +1021,21 @@ function renderPort() {
     el.onclick = k.act;
     el.onkeydown = e => { if (e.key === 'Enter') k.act(); };
   });
+
+  /* ---- Plano do aporte ---- */
+  const pb = $('#planoBox');
+  if (!(p.aporte > 0)) {
+    pb.innerHTML = `<div class="pl-head"><h3>🛒 O que comprar com o aporte</h3></div><p class="sub" style="margin:0">Digite o valor em <b>Aporte US$</b> (no topo) para ver exatamente quais ETFs e quantas cotas comprar. Nada será vendido.</p>`;
+  } else {
+    const tot = p.plano.reduce((s, a) => s + a.compra, 0);
+    pb.innerHTML = `<div class="pl-head"><h3>🛒 O que comprar com o aporte de ${usd(p.aporte)}</h3><span class="pl-tag">Sem vendas</span></div>
+      <table class="pl-tbl"><thead><tr><th>ETF</th><th>Preço</th><th>Comprar (cotas)</th><th>Cotas inteiras</th><th>Valor US$</th><th>% após aporte</th></tr></thead><tbody>
+      ${p.plano.map(a => `<tr><td><b>${esc(a.ticker)}</b><small>${esc(a.fator || '')}</small></td><td>${fmt(a.precoEff, 2)}</td>
+        <td class="pl-q">${fmt(a.qtdCompra, 4)}</td><td>${Math.floor(a.qtdCompra + 1e-9)}</td><td class="pl-v">${fmt(a.compra, 2)}</td>
+        <td>${pctf(p.totalProj > 0 ? (a.valorAtual + a.compra) / p.totalProj * 100 : 0)} <small>alvo ${pctf(a.pct)}</small></td></tr>`).join('')}
+      </tbody><tfoot><tr><td colspan="4">Total</td><td class="pl-v">${fmt(tot, 2)}</td><td></td></tr></tfoot></table>
+      <p class="sub" style="margin:8px 0 0">Os ETFs acima do alvo não recebem aporte e <b>não precisam ser vendidos</b> — o aporte vai para quem está abaixo do alvo. Se sua corretora não aceita frações, use a coluna <b>Cotas inteiras</b>.</p>`;
+  }
 
   /* ---- Donut de alocação ---- */
   const byMode = new Map();
